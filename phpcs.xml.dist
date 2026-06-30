@@ -1,0 +1,32 @@
+<?xml version="1.0"?>
+<ruleset name="WordPress Monorepo Standard">
+    <description>WordPress Coding Standards for all plugins in the monorepo.</description>
+
+    <arg name="extensions" value="php"/>
+    <arg value="ps"/>
+    <arg name="colors"/>
+
+    <exclude-pattern>*/vendor/*</exclude-pattern>
+    <exclude-pattern>*/node_modules/*</exclude-pattern>
+    <exclude-pattern>*/build/*</exclude-pattern>
+    <exclude-pattern>\.git/*</exclude-pattern>
+    <exclude-pattern>\.github/*</exclude-pattern>
+
+    <file>./plugins</file>
+
+    <rule ref="WordPress"/>
+
+    <rule ref="WordPress.NamingConventions.PrefixAllGlobals">
+        <properties>
+            <property name="prefixes" type="array">
+                <value>creole</value>
+                <value>create_block_like</value>
+                <value>post_to_speech</value>
+                <value>Post_To_Speech</value>
+            </property>
+        </properties>
+    </rule>
+
+    <config name="testVersion" value="7.4-"/>
+    <rule ref="PHPCompatibility"/>
+</ruleset>

@@ -1,0 +1,20 @@
+.post-to-speech-block__actions {
+	display: flex;
+	align-items: center;
+	gap: 0.75rem;
+	margin: 1rem 0;
+}
+
+.post-to-speech-block__player {
+	margin-top: 1rem;
+}
+
+.post-to-speech-block__player audio {
+	width: 100%;
+}
+
+.post-to-speech-block__progress {
+	margin: 0.5rem 0 0;
+	color: #50575e;
+	font-size: 0.9em;
+}

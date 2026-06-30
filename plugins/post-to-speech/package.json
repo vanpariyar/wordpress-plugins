@@ -1,0 +1,22 @@
+{
+	"name": "post-to-speech",
+	"version": "1.4.0",
+	"description": "Convert WordPress posts to speech and embed an audio player with a Gutenberg block.",
+	"author": "Ronak Vanpariya",
+	"license": "GPL-2.0-or-later",
+	"main": "build/index.js",
+	"scripts": {
+		"build": "wp-scripts build",
+		"start": "wp-scripts start",
+		"test": "wp-scripts test-unit-js",
+		"lint:js": "wp-scripts lint-js",
+		"format": "wp-scripts format"
+	},
+	"dependencies": {
+		"fflate": "^0.8.2",
+		"npyjs": "^0.6.0"
+	},
+	"devDependencies": {
+		"@wordpress/scripts": "^30.0.0"
+	}
+}

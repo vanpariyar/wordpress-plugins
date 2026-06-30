@@ -1,0 +1,120 @@
+name: Release WordPress Plugins
+
+on:
+  push:
+    branches:
+      - main
+      - master
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    name: Auto Detect and Release Plugins
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup Node.js Environment
+        uses: actions/setup-node@v3
+        with:
+          node-version: 20
+
+      - name: Setup Git Configuration
+        run: |
+          git config --global user.name "github-actions[bot]"
+          git config --global user.email "41898282+github-actions[bot]@users.noreply.github.com"
+
+      - name: Scan and Release Plugins
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          git fetch --tags
+          MONOREPO_PATH=$(pwd)
+
+          for DIR_PATH in plugins/*; do
+            if [ ! -d "$DIR_PATH" ]; then
+              continue
+            fi
+
+            DIR=$(basename "$DIR_PATH")
+
+            MAIN_FILE=$(find "$DIR_PATH" -maxdepth 1 -name "*.php" -exec grep -q "Plugin Name:" {} \; -print | head -n 1)
+
+            if [ -z "$MAIN_FILE" ]; then
+              continue
+            fi
+
+            VERSION=$(grep -i "Version:" "$MAIN_FILE" | sed -r 's/.*Version:[[:space:]]*([0-9.]+).*/\1/' | tr -d '\r')
+
+            if [ -z "$VERSION" ]; then
+              echo "Could not parse version in $MAIN_FILE. Skipping."
+              continue
+            fi
+
+            TAG="$DIR/v$VERSION"
+
+            if [ -n "$(git tag -l "$TAG")" ]; then
+              echo "Plugin '$DIR' (version $VERSION) is already released (Tag: $TAG). Skipping."
+              continue
+            fi
+
+            echo "New version detected! Plugin '$DIR' needs to be released at version $VERSION (Tag: $TAG)..."
+
+            if [ -f "$DIR_PATH/package.json" ]; then
+              echo "package.json detected in $DIR_PATH. Compiling assets..."
+              cd "$DIR_PATH"
+              npm ci --legacy-peer-deps || npm install --legacy-peer-deps
+              npm run build --if-present
+              cd "$MONOREPO_PATH"
+            fi
+
+            BUILD_DIR="build_dir/$DIR"
+            mkdir -p "$BUILD_DIR"
+            cp -r "$DIR_PATH"/* "$BUILD_DIR/"
+
+            if [ -f "$DIR_PATH/.distignore" ]; then
+              echo "Applying custom exclusions from .distignore in $DIR..."
+              cd "$BUILD_DIR"
+              while IFS= read -r line || [ -n "$line" ]; do
+                [[ "$line" =~ ^# ]] && continue
+                [[ -z "$line" ]] && continue
+
+                pattern=$(echo "$line" | sed -e 's/^[[:space:]]*//' -e 's/[[:space:]]*$//')
+                find . -path "./$pattern" -exec rm -rf {} + 2>/dev/null || true
+              done < "$MONOREPO_PATH/$DIR_PATH/.distignore"
+              cd "$MONOREPO_PATH"
+            else
+              echo "Applying default developer file exclusions..."
+              rm -rf "$BUILD_DIR/tests"
+              rm -rf "$BUILD_DIR/phpunit.xml.dist"
+              rm -rf "$BUILD_DIR/composer.json"
+              rm -rf "$BUILD_DIR/composer.lock"
+              rm -rf "$BUILD_DIR/vendor"
+              rm -rf "$BUILD_DIR/.git*"
+            fi
+
+            ZIP_NAME="$DIR-v$VERSION.zip"
+            cd build_dir
+            zip -r "../$ZIP_NAME" "$DIR"
+            cd ..
+            rm -rf "build_dir"
+
+            git tag "$TAG"
+            git push origin "$TAG"
+
+            FRIENDLY_NAME=$(echo "$DIR" | sed -r 's/-/ /g' | awk '{for(i=1;i<=NF;i++){$i=toupper(substr($i,1,1)) substr($i,2)}}1')
+            RELEASE_NAME="$FRIENDLY_NAME v$VERSION"
+
+            echo "Publishing release and uploading $ZIP_NAME to GitHub..."
+            gh release create "$TAG" "$ZIP_NAME" \
+              --title "$RELEASE_NAME" \
+              --notes "Automated release of $FRIENDLY_NAME version $VERSION."
+
+            rm "$ZIP_NAME"
+          done

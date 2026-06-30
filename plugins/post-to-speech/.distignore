@@ -1,0 +1,30 @@
+# Development and VCS files
+.git
+.gitignore
+.github
+.distignore
+.editorconfig
+.eslintrc*
+.prettierrc*
+
+# Package managers (not needed in the distributed plugin)
+node_modules/
+package-lock.json
+package.json
+
+# Tests
+tests/
+phpunit.xml.dist
+
+# Developer docs (not needed in the plugin zip)
+WORDPRESS-ORG.md
+.distignore
+
+# Tests
+tests/
+phpunit.xml.dist
+
+# Optional dev tooling configs
+webpack.config.js
+
+# Keep src/ in the WordPress.org zip — reviewers require unminified JS sources.

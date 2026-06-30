@@ -1,0 +1,13 @@
+services:
+  kitten-tts-api:
+    build: .
+    ports:
+      - "8080:8080"
+    env_file:
+      - .env
+    volumes:
+      - kitten_tts_data:/data
+    restart: unless-stopped
+
+volumes:
+  kitten_tts_data:

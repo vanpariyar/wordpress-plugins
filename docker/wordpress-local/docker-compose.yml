@@ -1,0 +1,38 @@
+services:
+  db:
+    image: mysql:8.0
+    environment:
+      MYSQL_DATABASE: wordpress
+      MYSQL_USER: wordpress
+      MYSQL_PASSWORD: wordpress
+      MYSQL_ROOT_PASSWORD: root
+    volumes:
+      - wp_db_data:/var/lib/mysql
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  wordpress:
+    image: wordpress:6.8-php8.2-apache
+    depends_on:
+      db:
+        condition: service_healthy
+    ports:
+      - "8888:80"
+    environment:
+      WORDPRESS_DB_HOST: db
+      WORDPRESS_DB_USER: wordpress
+      WORDPRESS_DB_PASSWORD: wordpress
+      WORDPRESS_DB_NAME: wordpress
+    volumes:
+      - ../../plugins/post-to-speech:/var/www/html/wp-content/plugins/post-to-speech
+    command: >
+      bash -c "mkdir -p /var/www/html/wp-content/uploads &&
+      chown -R www-data:www-data /var/www/html/wp-content/uploads &&
+      chmod -R 775 /var/www/html/wp-content/uploads &&
+      docker-entrypoint.sh apache2-foreground"
+
+volumes:
+  wp_db_data:
