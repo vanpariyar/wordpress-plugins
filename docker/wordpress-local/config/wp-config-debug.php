@@ -20,9 +20,6 @@ if ( ! defined( 'WP_DEBUG_DISPLAY' ) ) {
 if ( ! defined( 'SCRIPT_DEBUG' ) ) {
 	define( 'SCRIPT_DEBUG', true );
 }
-if ( ! defined( 'SAVEQUERIES' ) ) {
-	define( 'SAVEQUERIES', true );
-}
 if ( ! defined( 'WP_MEMORY_LIMIT' ) ) {
 	define( 'WP_MEMORY_LIMIT', '256M' );
 }

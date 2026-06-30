@@ -6,7 +6,7 @@ docker compose up -d
 
 - **WordPress:** http://localhost:8888
 - **Admin:** `admin` / `admin123`
-- **Debug log:** `docker/wordpress-local/wp-content/debug.log` (on your machine)
+- **Debug log:** `docker/wordpress-local/wp-content/debug.log`
 - **Fatal log:** `docker/wordpress-local/wp-content/pts-fatal.log`
 
 The `post-to-speech` plugin is mounted from `../../plugins/post-to-speech`.
@@ -48,17 +48,25 @@ docker compose up -d --force-recreate
 
 ```bash
 cd docker/wordpress-local
-chmod +x reload.sh
+chmod +x reload.sh disable-plugins.sh
 ./reload.sh
 ```
 
-2. **Full reset** if reload did not help:
+3. **Disable all plugins** if the site still shows a critical error (clears a bad `active_plugins` entry, e.g. old `kitten-tts-audio`):
+
+```bash
+./disable-plugins.sh
+```
+
+Then log in at http://localhost:8888/wp-admin/ and activate **Post to Speech** only.
+
+4. **Full reset** if reload did not help:
 
 ```bash
 ./reset.sh
 ```
 
-3. Check logs:
+5. Check logs:
 
 ```bash
 cat wp-content/debug.log
@@ -66,7 +74,7 @@ cat wp-content/pts-fatal.log
 cat ../../plugins/post-to-speech/local-fatal.log
 ```
 
-4. Ensure block assets exist:
+6. Ensure block assets exist:
 
 ```bash
 cd ../../plugins/post-to-speech

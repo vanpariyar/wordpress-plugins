@@ -6,7 +6,9 @@
 	"license": "GPL-2.0-or-later",
 	"main": "build/index.js",
 	"scripts": {
-		"build": "wp-scripts build",
+		"copy:vendor": "bash scripts/copy-vendor.sh",
+		"build": "npm run copy:vendor && wp-scripts build",
+		"postinstall": "npm run copy:vendor",
 		"start": "wp-scripts start",
 		"test": "wp-scripts test-unit-js",
 		"lint:js": "wp-scripts lint-js",
@@ -14,6 +16,7 @@
 	},
 	"devDependencies": {
 		"@wordpress/scripts": "^30.0.0",
+		"espeak-ng": "^1.0.2",
 		"fflate": "^0.8.2",
 		"npyjs": "^0.6.0"
 	}

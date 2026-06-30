@@ -90,7 +90,21 @@ class Post_To_Speech_Config {
 			'voiceAliases'    => self::get_voice_aliases(),
 			'apiConfigured'   => self::MODE_API === $mode && self::is_api_configured(),
 			'pricePerRequest' => (float) get_option( 'post_to_speech_price_per_request', 0 ),
+			'espeakModuleUrl' => self::get_espeak_module_url(),
 		);
+	}
+
+	/**
+	 * URL to the bundled eSpeak-NG ES module (editor only).
+	 *
+	 * @return string
+	 */
+	public static function get_espeak_module_url() {
+		if ( defined( 'POST_TO_SPEECH_URL' ) ) {
+			return POST_TO_SPEECH_URL . 'assets/vendor/espeak-ng/espeak-ng.js';
+		}
+
+		return '/wp-content/plugins/post-to-speech/assets/vendor/espeak-ng/espeak-ng.js';
 	}
 
 	/**

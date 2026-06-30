@@ -4,9 +4,42 @@
 
 import { normalizePhonemeString } from './text-cleaner';
 
-const ONNX_VERSION = '1.27.0';
-const ONNX_CDN = `https://cdn.jsdelivr.net/npm/onnxruntime-web@${ ONNX_VERSION }/dist`;
-const ESPEAK_MODULE = 'https://cdn.jsdelivr.net/npm/espeak-ng@1.0.2/dist/espeak-ng.js';
+// 1.27.x ort.min.js pulls the JSEP worker (ort-wasm-simd-threaded.jsep.*), which has
+// been missing or 404 on jsDelivr. 1.20.1 is pinned for stable CDN + WASM-only inference.
+const ONNX_VERSION = '1.20.1';
+const ONNX_CDN_BASES = [
+	`https://cdn.jsdelivr.net/npm/onnxruntime-web@${ ONNX_VERSION }/dist`,
+	`https://unpkg.com/onnxruntime-web@${ ONNX_VERSION }/dist`,
+];
+/**
+ * Resolve the bundled eSpeak-NG module URL from editor settings.
+ *
+ * @return {string}
+ */
+function getEspeakModuleUrl() {
+	const url = window.postToSpeechSettings?.espeakModuleUrl;
+
+	if ( ! url ) {
+		throw new Error(
+			'eSpeak-NG is not configured. Reinstall the plugin or run npm run build in the plugin directory.'
+		);
+	}
+
+	return url;
+}
+
+/**
+ * Point ONNX Runtime Web at CDN-hosted WASM/worker files.
+ *
+ * @param {typeof import('onnxruntime-web')} ort ONNX Runtime global.
+ * @param {string}                             cdnBase CDN dist directory (no trailing slash).
+ */
+function configureOrtEnv( ort, cdnBase ) {
+	// Workers resolve WASM relative to the page unless wasmPaths is set explicitly.
+	ort.env.wasm.wasmPaths = `${ cdnBase }/`;
+	// wp-admin does not send COOP/COEP, so disable threaded WASM (needs SharedArrayBuffer).
+	ort.env.wasm.numThreads = 1;
+}
 
 /**
  * Load ONNX Runtime Web from CDN.
@@ -15,19 +48,29 @@ const ESPEAK_MODULE = 'https://cdn.jsdelivr.net/npm/espeak-ng@1.0.2/dist/espeak-
  */
 export async function loadOnnxRuntime() {
 	if ( window.ort ) {
-		window.ort.env.wasm.wasmPaths = `${ ONNX_CDN }/`;
+		configureOrtEnv( window.ort, ONNX_CDN_BASES[ 0 ] );
 		return window.ort;
 	}
 
-	await loadScript( `${ ONNX_CDN }/ort.min.js` );
+	let lastError = null;
 
-	if ( ! window.ort ) {
-		throw new Error( 'ONNX Runtime Web failed to load.' );
+	for ( const cdnBase of ONNX_CDN_BASES ) {
+		try {
+			await loadScript( `${ cdnBase }/ort.min.js` );
+
+			if ( ! window.ort ) {
+				throw new Error( 'ONNX Runtime Web failed to load.' );
+			}
+
+			configureOrtEnv( window.ort, cdnBase );
+
+			return window.ort;
+		} catch ( error ) {
+			lastError = error;
+		}
 	}
 
-	window.ort.env.wasm.wasmPaths = `${ ONNX_CDN }/`;
-
-	return window.ort;
+	throw lastError || new Error( 'ONNX Runtime Web failed to load from CDN.' );
 }
 
 /**
@@ -74,7 +117,7 @@ async function loadESpeakNgFactory() {
 			// espeak-ng is an ES module (uses import.meta) — must use dynamic import, not <script>.
 			const module = await import(
 				/* webpackIgnore: true */
-				ESPEAK_MODULE
+				getEspeakModuleUrl()
 			);
 			const factory = module.default || module.ESpeakNG;
 

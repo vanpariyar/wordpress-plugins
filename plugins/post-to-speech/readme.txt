@@ -31,7 +31,7 @@ Post to Speech helps you convert WordPress posts into listenable audio. Add the 
 
 == Credits ==
 
-This plugin uses the open-source [KittenTTS](https://github.com/KittenML/KittenTTS) speech synthesis models from [KittenML](https://github.com/KittenML).
+This plugin uses the open-source [KittenTTS](https://github.com/KittenML/KittenTTS) speech synthesis models from [KittenML](https://github.com/KittenML) and bundles [eSpeak-NG](https://github.com/espeak-ng/espeak-ng) (GPL-3.0-or-later) for browser phonemization.
 
 Post to Speech is developed independently and is **not affiliated with, endorsed by, or sponsored by KittenML**.
 
@@ -42,7 +42,7 @@ This plugin may contact the following third-party services when generating audio
 **Browser mode (editor only)**
 
 * [Hugging Face](https://huggingface.co/) — downloads speech model files configured in settings (default models published by KittenML).
-* [jsDelivr CDN](https://www.jsdelivr.com/) — loads ONNX Runtime Web and eSpeak-NG browser libraries.
+* [jsDelivr CDN](https://www.jsdelivr.com/) — loads ONNX Runtime Web in the editor. eSpeak-NG is bundled with the plugin.
 
 **API mode (server-side, when configured)**
 
