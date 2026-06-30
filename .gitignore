@@ -6,3 +6,5 @@
 .DS_Store
 composer.lock
 /tests/wordpress-stub/wp-admin/
+build_dir/
+*.zip

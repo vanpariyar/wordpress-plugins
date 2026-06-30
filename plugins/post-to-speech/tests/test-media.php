@@ -25,6 +25,7 @@ class Post_To_Speech_Media_Test extends Post_To_Speech_TestCase {
 	public function setUp(): void {
 		parent::setUp();
 
+		$this->load_include( 'class-config.php' );
 		$this->load_include( 'class-media.php' );
 
 		$this->media = new Post_To_Speech_Media();

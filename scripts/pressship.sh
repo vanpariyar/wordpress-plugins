@@ -93,11 +93,7 @@ main() {
 			fi
 
 			if [ -f "$plugin_dir/.distignore" ] && [ "$command" = "pack" ]; then
-				STAGING_DIR="$(mktemp -d)"
-				cp -R "$plugin_dir/." "$STAGING_DIR/"
-				bash "$MONOREPO_ROOT/scripts/apply-distignore.sh" "$STAGING_DIR" "$plugin_dir/.distignore"
-				npx pressship "$command" "$STAGING_DIR" "$@"
-				rm -rf "$STAGING_DIR"
+				bash "$MONOREPO_ROOT/scripts/pack-plugin.sh" "$slug" "$MONOREPO_ROOT"
 				exit 0
 			fi
 			;;

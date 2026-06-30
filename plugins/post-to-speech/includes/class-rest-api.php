@@ -271,9 +271,33 @@ class Post_To_Speech_REST_API {
 			);
 		}
 
-		$wav_bytes = base64_decode( $audio, true );
+		if ( function_exists( 'wp_raise_memory_limit' ) ) {
+			wp_raise_memory_limit( 'admin' );
+		}
 
-		if ( false === $wav_bytes || empty( $wav_bytes ) ) {
+		$tmp_file = $this->decode_base64_audio_to_temp_file( $audio );
+
+		if ( is_wp_error( $tmp_file ) ) {
+			return $tmp_file;
+		}
+
+		$result = $media->upload_wav_temp_path( $tmp_file, $post_id );
+
+		if ( is_wp_error( $result ) ) {
+			return $result;
+		}
+
+		return rest_ensure_response( $result );
+	}
+
+	/**
+	 * Decode base64 audio into a temp WAV file without loading the full payload into memory.
+	 *
+	 * @param string $audio Base64-encoded WAV data.
+	 * @return string|WP_Error Absolute temp file path.
+	 */
+	private function decode_base64_audio_to_temp_file( $audio ) {
+		if ( ! is_string( $audio ) || '' === $audio ) {
 			return new WP_Error(
 				'post_to_speech_invalid_audio',
 				__( 'Invalid audio payload.', 'post-to-speech' ),
@@ -281,22 +305,98 @@ class Post_To_Speech_REST_API {
 			);
 		}
 
-		$max_bytes = (int) apply_filters( 'post_to_speech_max_upload_bytes', 15 * MB_IN_BYTES );
-
-		if ( strlen( $wav_bytes ) > $max_bytes ) {
+		if ( ! preg_match( '/^[A-Za-z0-9+\/=\r\n]+$/', $audio ) ) {
 			return new WP_Error(
-				'post_to_speech_too_large',
-				__( 'Generated audio exceeds the maximum upload size.', 'post-to-speech' ),
+				'post_to_speech_invalid_audio',
+				__( 'Invalid audio payload.', 'post-to-speech' ),
 				array( 'status' => 400 )
 			);
 		}
 
-		$result = $media->upload_wav_bytes( $wav_bytes, $post_id );
+		require_once ABSPATH . 'wp-admin/includes/file.php';
 
-		if ( is_wp_error( $result ) ) {
-			return $result;
+		if ( ! class_exists( 'Post_To_Speech_Config' ) ) {
+			require_once dirname( __DIR__ ) . '/includes/class-config.php';
 		}
 
-		return rest_ensure_response( $result );
+		$max_bytes    = Post_To_Speech_Config::get_max_upload_bytes();
+		$tmp_file     = wp_tempnam( 'post-to-speech-' );
+		$decoded_size = 0;
+
+		if ( ! $tmp_file ) {
+			return new WP_Error(
+				'post_to_speech_temp_file',
+				__( 'Could not create a temporary file for audio upload.', 'post-to-speech' ),
+				array( 'status' => 500 )
+			);
+		}
+
+		$handle = fopen( $tmp_file, 'wb' );
+
+		if ( false === $handle ) {
+			wp_delete_file( $tmp_file );
+
+			return new WP_Error(
+				'post_to_speech_temp_file',
+				__( 'Could not create a temporary file for audio upload.', 'post-to-speech' ),
+				array( 'status' => 500 )
+			);
+		}
+
+		$length         = strlen( $audio );
+		$base64_chunk   = 1024 * 1024;
+		$too_large_code = 'post_to_speech_too_large';
+
+		for ( $offset = 0; $offset < $length; $offset += $base64_chunk ) {
+			$slice   = substr( $audio, $offset, $base64_chunk );
+			$binary  = base64_decode( $slice, true );
+
+			if ( false === $binary || '' === $binary ) {
+				fclose( $handle );
+				wp_delete_file( $tmp_file );
+
+				return new WP_Error(
+					'post_to_speech_invalid_audio',
+					__( 'Invalid audio payload.', 'post-to-speech' ),
+					array( 'status' => 400 )
+				);
+			}
+
+			$decoded_size += strlen( $binary );
+
+			if ( $decoded_size > $max_bytes ) {
+				fclose( $handle );
+				wp_delete_file( $tmp_file );
+
+				return new WP_Error(
+					$too_large_code,
+					sprintf(
+						/* translators: 1: generated audio size, 2: maximum allowed size */
+						__( 'Generated audio (%1$s) exceeds the maximum upload size (%2$s). Try a shorter post or ask your site administrator to raise the limit.', 'post-to-speech' ),
+						size_format( $decoded_size ),
+						size_format( $max_bytes )
+					),
+					array( 'status' => 400 )
+				);
+			}
+
+			// phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_fwrite
+			fwrite( $handle, $binary );
+			unset( $binary );
+		}
+
+		fclose( $handle );
+
+		if ( 0 === $decoded_size ) {
+			wp_delete_file( $tmp_file );
+
+			return new WP_Error(
+				'post_to_speech_invalid_audio',
+				__( 'Invalid audio payload.', 'post-to-speech' ),
+				array( 'status' => 400 )
+			);
+		}
+
+		return $tmp_file;
 	}
 }

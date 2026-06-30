@@ -26,13 +26,15 @@ services:
       WORDPRESS_DB_USER: wordpress
       WORDPRESS_DB_PASSWORD: wordpress
       WORDPRESS_DB_NAME: wordpress
+      WORDPRESS_DEBUG: "1"
     volumes:
       - ../../plugins/post-to-speech:/var/www/html/wp-content/plugins/post-to-speech
-    command: >
-      bash -c "mkdir -p /var/www/html/wp-content/uploads &&
-      chown -R www-data:www-data /var/www/html/wp-content/uploads &&
-      chmod -R 775 /var/www/html/wp-content/uploads &&
-      docker-entrypoint.sh apache2-foreground"
+      - ./config/wp-config.php:/var/www/html/wp-config.php:ro
+      - ./config/wp-config-debug.php:/var/www/html/wp-config-debug.php:ro
+      - ./entrypoint-local.sh:/usr/local/bin/entrypoint-local.sh:ro
+      - ./mu-plugins:/var/www/html/wp-content/mu-plugins
+      - ./wp-content:/var/www/html/wp-content/local-dev
+    command: [ "bash", "/usr/local/bin/entrypoint-local.sh" ]
 
 volumes:
   wp_db_data:

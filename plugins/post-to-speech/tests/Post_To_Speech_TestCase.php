@@ -42,6 +42,24 @@ abstract class Post_To_Speech_TestCase extends WpMockTestCase {
 				},
 			)
 		);
+
+		WP_Mock::userFunction(
+			'is_wp_error',
+			array(
+				'return' => function ( $thing ) {
+					return $thing instanceof WP_Error;
+				},
+			)
+		);
+
+		WP_Mock::userFunction(
+			'size_format',
+			array(
+				'return' => function ( $bytes ) {
+					return (string) $bytes . ' B';
+				},
+			)
+		);
 	}
 
 	/**

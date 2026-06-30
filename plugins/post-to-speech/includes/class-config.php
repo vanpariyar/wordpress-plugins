@@ -82,15 +82,45 @@ class Post_To_Speech_Config {
 		}
 
 		return array(
-			'generationMode' => $mode,
-			'modelRepo'      => $model_repo,
-			'defaultVoice'   => get_option( 'post_to_speech_default_voice', 'Bella' ),
-			'defaultSpeed'   => 1.0,
-			'voices'         => self::get_voices(),
-			'voiceAliases'   => self::get_voice_aliases(),
-			'apiConfigured'  => self::MODE_API === $mode && self::is_api_configured(),
-			'pricePerRequest'=> (float) get_option( 'post_to_speech_price_per_request', 0 ),
+			'generationMode'  => $mode,
+			'modelRepo'       => $model_repo,
+			'defaultVoice'    => get_option( 'post_to_speech_default_voice', 'Bella' ),
+			'defaultSpeed'    => 1.0,
+			'voices'          => self::get_voices(),
+			'voiceAliases'    => self::get_voice_aliases(),
+			'apiConfigured'   => self::MODE_API === $mode && self::is_api_configured(),
+			'pricePerRequest' => (float) get_option( 'post_to_speech_price_per_request', 0 ),
 		);
+	}
+
+	/**
+	 * Admin URL for the plugin settings screen (block editor only).
+	 *
+	 * @return string
+	 */
+	public static function get_settings_page_url() {
+		if ( function_exists( 'admin_url' ) ) {
+			return admin_url( 'options-general.php?page=post-to-speech' );
+		}
+
+		return '/wp-admin/options-general.php?page=post-to-speech';
+	}
+
+	/**
+	 * Maximum decoded WAV size allowed for media uploads.
+	 *
+	 * Defaults to 64 MB (~22 minutes at 24 kHz mono). Filter with post_to_speech_max_upload_bytes.
+	 *
+	 * @return int
+	 */
+	public static function get_max_upload_bytes() {
+		if ( ! defined( 'MB_IN_BYTES' ) ) {
+			define( 'MB_IN_BYTES', 1024 * 1024 );
+		}
+
+		$default = 64 * MB_IN_BYTES;
+
+		return max( MB_IN_BYTES, (int) apply_filters( 'post_to_speech_max_upload_bytes', $default ) );
 	}
 
 	/**

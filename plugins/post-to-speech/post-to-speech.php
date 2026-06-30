@@ -23,6 +23,22 @@ define( 'POST_TO_SPEECH_VERSION', '1.4.0' );
 define( 'POST_TO_SPEECH_PATH', plugin_dir_path( __FILE__ ) );
 define( 'POST_TO_SPEECH_URL', plugin_dir_url( __FILE__ ) );
 
+if ( defined( 'WP_DEBUG' ) && WP_DEBUG && is_admin() ) {
+	register_shutdown_function(
+		static function () {
+			$error = error_get_last();
+
+			if ( ! $error || ! in_array( $error['type'], array( E_ERROR, E_PARSE, E_COMPILE_ERROR, E_CORE_ERROR ), true ) ) {
+				return;
+			}
+
+			$line = gmdate( 'c' ) . ' ' . $error['message'] . ' in ' . $error['file'] . ':' . $error['line'] . PHP_EOL;
+			// phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_file_put_contents
+			file_put_contents( POST_TO_SPEECH_PATH . 'local-fatal.log', $line, FILE_APPEND );
+		}
+	);
+}
+
 require_once POST_TO_SPEECH_PATH . 'includes/class-config.php';
 require_once POST_TO_SPEECH_PATH . 'includes/class-media.php';
 require_once POST_TO_SPEECH_PATH . 'includes/class-api-client.php';
@@ -34,9 +50,33 @@ require_once POST_TO_SPEECH_PATH . 'includes/class-editor-assets.php';
  * Register the Gutenberg block.
  */
 function post_to_speech_register_block() {
-	register_block_type( POST_TO_SPEECH_PATH . 'build' );
+	$block_dir = POST_TO_SPEECH_PATH . 'build';
+
+	if ( ! file_exists( $block_dir . '/block.json' ) ) {
+		add_action( 'admin_notices', 'post_to_speech_missing_build_notice' );
+		return;
+	}
+
+	register_block_type( $block_dir );
 }
 add_action( 'init', 'post_to_speech_register_block' );
+
+/**
+ * Warn administrators when compiled block assets are missing.
+ */
+function post_to_speech_missing_build_notice() {
+	if ( ! current_user_can( 'activate_plugins' ) ) {
+		return;
+	}
+
+	printf(
+		'<div class="notice notice-error"><p>%s</p></div>',
+		esc_html__(
+			'Post to Speech is missing compiled block assets in build/. Reinstall the plugin from a package created with scripts/pack-plugin.sh.',
+			'post-to-speech'
+		)
+	);
+}
 
 /**
  * Bootstrap plugin services.

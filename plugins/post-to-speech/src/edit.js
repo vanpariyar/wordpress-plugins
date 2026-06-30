@@ -8,10 +8,21 @@ import {
 	Button,
 	Spinner,
 	Notice,
+	ExternalLink,
 } from '@wordpress/components';
 import { useState, useEffect, useMemo } from '@wordpress/element';
 import apiFetch from '@wordpress/api-fetch';
 import { useSelect } from '@wordpress/data';
+
+function getSettingsPageUrl( settings ) {
+	if ( settings?.settingsUrl ) {
+		return settings.settingsUrl;
+	}
+
+	const adminBase = window.location.href.split( '/wp-admin/' )[ 0 ];
+
+	return `${ adminBase }/wp-admin/options-general.php?page=post-to-speech`;
+}
 
 const DEFAULT_VOICES = [
 	'Bella',
@@ -104,7 +115,10 @@ export default function Edit( { attributes, setAttributes } ) {
 	useEffect( () => {
 		apiFetch( { path: '/post-to-speech/v1/config' } )
 			.then( ( response ) => {
-				setSettings( response );
+				setSettings( ( previous ) => ( {
+					...previous,
+					...response,
+				} ) );
 
 				if ( response.voices?.length ) {
 					setVoices( response.voices );
@@ -283,6 +297,14 @@ export default function Edit( { attributes, setAttributes } ) {
 							{ settings.pricePerRequest }
 						</p>
 					) }
+					<p>
+						<ExternalLink href={ getSettingsPageUrl( settings ) }>
+							{ __(
+								'Change generation mode in plugin settings',
+								'post-to-speech'
+							) }
+						</ExternalLink>
+					</p>
 				</PanelBody>
 			</InspectorControls>
 

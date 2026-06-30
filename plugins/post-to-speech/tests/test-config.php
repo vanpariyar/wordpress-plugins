@@ -69,6 +69,21 @@ class Post_To_Speech_Config_Test extends Post_To_Speech_TestCase {
 		$this->assertSame( Post_To_Speech_Config::MODE_BROWSER, $settings['generationMode'] );
 		$this->assertSame( 'KittenML/kitten-tts-nano-0.8-fp32', $settings['modelRepo'] );
 		$this->assertFalse( $settings['apiConfigured'] );
+		$this->assertArrayNotHasKey( 'settingsUrl', $settings );
+	}
+
+	/**
+	 * Settings page URL should use admin_url when available.
+	 */
+	public function test_get_settings_page_url_uses_admin_url() {
+		WP_Mock::userFunction( 'admin_url' )
+			->with( 'options-general.php?page=post-to-speech' )
+			->andReturn( 'http://example.com/wp-admin/options-general.php?page=post-to-speech' );
+
+		$this->assertSame(
+			'http://example.com/wp-admin/options-general.php?page=post-to-speech',
+			Post_To_Speech_Config::get_settings_page_url()
+		);
 	}
 
 	/**
@@ -96,5 +111,20 @@ class Post_To_Speech_Config_Test extends Post_To_Speech_TestCase {
 	public function test_is_allowed_model_repo_rejects_unknown_repo() {
 		$this->assertFalse( Post_To_Speech_Config::is_allowed_model_repo( 'Evil/unknown-model' ) );
 		$this->assertTrue( Post_To_Speech_Config::is_allowed_model_repo( 'KittenML/kitten-tts-mini-0.8' ) );
+	}
+
+	/**
+	 * Upload limit should default to 64 MB.
+	 */
+	public function test_get_max_upload_bytes_defaults_to_sixty_four_megabytes() {
+		WP_Mock::userFunction( 'apply_filters' )
+			->with( 'post_to_speech_max_upload_bytes', 64 * MB_IN_BYTES )
+			->andReturnUsing(
+				function ( $tag, $value ) {
+					return $value;
+				}
+			);
+
+		$this->assertSame( 64 * MB_IN_BYTES, Post_To_Speech_Config::get_max_upload_bytes() );
 	}
 }

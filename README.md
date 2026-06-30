@@ -148,9 +148,11 @@ For publishing plugins to the [WordPress.org Plugin Directory](https://wordpress
 ./scripts/pressship.sh info post-to-speech
 ./scripts/pressship.sh status post-to-speech
 
-# Validate and package (builds block assets automatically)
+# Validate and package (builds block assets automatically; use pack-plugin.sh so build/ is included)
+./scripts/pack-plugin.sh post-to-speech
+
+# Or via Pressship wrapper (pack uses pack-plugin.sh; verify/publish still use Pressship)
 ./scripts/pressship.sh verify post-to-speech
-./scripts/pressship.sh pack post-to-speech
 
 # Publish to WordPress.org (dry-run first)
 ./scripts/pressship.sh publish post-to-speech --dry-run
