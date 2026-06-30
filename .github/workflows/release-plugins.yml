@@ -76,27 +76,20 @@ jobs:
 
             BUILD_DIR="build_dir/$DIR"
             mkdir -p "$BUILD_DIR"
-            cp -r "$DIR_PATH"/* "$BUILD_DIR/"
+            rsync -a --exclude 'node_modules' "$DIR_PATH/" "$BUILD_DIR/"
 
             if [ -f "$DIR_PATH/.distignore" ]; then
               echo "Applying custom exclusions from .distignore in $DIR..."
-              cd "$BUILD_DIR"
-              while IFS= read -r line || [ -n "$line" ]; do
-                [[ "$line" =~ ^# ]] && continue
-                [[ -z "$line" ]] && continue
-
-                pattern=$(echo "$line" | sed -e 's/^[[:space:]]*//' -e 's/[[:space:]]*$//')
-                find . -path "./$pattern" -exec rm -rf {} + 2>/dev/null || true
-              done < "$MONOREPO_PATH/$DIR_PATH/.distignore"
-              cd "$MONOREPO_PATH"
+              bash "$MONOREPO_PATH/scripts/apply-distignore.sh" "$BUILD_DIR" "$DIR_PATH/.distignore"
             else
               echo "Applying default developer file exclusions..."
               rm -rf "$BUILD_DIR/tests"
+              rm -rf "$BUILD_DIR/node_modules"
               rm -rf "$BUILD_DIR/phpunit.xml.dist"
               rm -rf "$BUILD_DIR/composer.json"
               rm -rf "$BUILD_DIR/composer.lock"
               rm -rf "$BUILD_DIR/vendor"
-              rm -rf "$BUILD_DIR/.git*"
+              rm -rf "$BUILD_DIR/.git"*
             fi
 
             ZIP_NAME="$DIR-v$VERSION.zip"

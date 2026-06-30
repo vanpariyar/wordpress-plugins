@@ -91,6 +91,15 @@ main() {
 				( cd "$plugin_dir" && npm ci --legacy-peer-deps 2>/dev/null || npm install --legacy-peer-deps )
 				( cd "$plugin_dir" && npm run build --if-present )
 			fi
+
+			if [ -f "$plugin_dir/.distignore" ] && [ "$command" = "pack" ]; then
+				STAGING_DIR="$(mktemp -d)"
+				cp -R "$plugin_dir/." "$STAGING_DIR/"
+				bash "$MONOREPO_ROOT/scripts/apply-distignore.sh" "$STAGING_DIR" "$plugin_dir/.distignore"
+				npx pressship "$command" "$STAGING_DIR" "$@"
+				rm -rf "$STAGING_DIR"
+				exit 0
+			fi
 			;;
 	esac
 

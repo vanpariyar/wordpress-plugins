@@ -29,19 +29,19 @@ Exclude from zip:
 - [ ] `node_modules/`
 - [ ] `.git/`, `.github/`, `.distignore`
 
-Quick zip from repo root:
+Quick zip from repo root (excludes `node_modules` via `.distignore`):
 
 ```bash
 cd plugins
-zip -r post-to-speech.zip post-to-speech \
-  -x "post-to-speech/node_modules/*" \
-  -x "post-to-speech/package-lock.json" \
-  -x "post-to-speech/package.json" \
-  -x "post-to-speech/.git/*" \
-  -x "post-to-speech/.github/*" \
-  -x "post-to-speech/.distignore" \
-  -x "post-to-speech/WORDPRESS-ORG.md"
+STAGING="$(mktemp -d)/post-to-speech"
+mkdir -p "$STAGING"
+cp -R post-to-speech/. "$STAGING/"
+bash ../scripts/apply-distignore.sh "$STAGING" post-to-speech/.distignore
+(cd "$(dirname "$STAGING")" && zip -r post-to-speech.zip post-to-speech)
+rm -rf "$(dirname "$STAGING")"
 ```
+
+Expected distributable size: **~45 KB** zipped (build assets + PHP + `src/` sources).
 
 ## SVN assets (after approval)
 
