@@ -3,7 +3,7 @@ Contributors: vanpariyar
 Donate link: https://vanpariyar.github.io
 Tags: audio, text-to-speech, gutenberg, speech, blog
 Requires at least: 6.0
-Tested up to: 6.8
+Tested up to: 7.0
 Requires PHP: 7.4
 Stable tag: 1.4.0
 License: GPLv2 or later

@@ -9,7 +9,7 @@ if ( ! defined( 'WP_UNINSTALL_PLUGIN' ) ) {
 	exit;
 }
 
-$options = array(
+$post_to_speech_options = array(
 	'post_to_speech_generation_mode',
 	'post_to_speech_model',
 	'post_to_speech_default_voice',
@@ -25,6 +25,6 @@ $options = array(
 	'kitten_tts_price_per_request',
 );
 
-foreach ( $options as $option ) {
-	delete_option( $option );
+foreach ( $post_to_speech_options as $post_to_speech_option ) {
+	delete_option( $post_to_speech_option );
 }

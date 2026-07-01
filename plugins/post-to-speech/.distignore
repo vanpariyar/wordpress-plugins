@@ -3,6 +3,7 @@
 .gitignore
 .github
 .distignore
+.pressshipignore
 .editorconfig
 .eslintrc*
 .prettierrc*
@@ -11,6 +12,11 @@
 node_modules
 package-lock.json
 package.json
+
+# Dev scripts and logs (not shipped to WordPress.org)
+scripts
+scripts/**
+local-fatal.log
 
 # Tests
 tests

@@ -5,6 +5,10 @@
  * @package Post_To_Speech
  */
 
+if ( ! defined( 'ABSPATH' ) ) {
+	exit;
+}
+
 require_once __DIR__ . '/Post_To_Speech_TestCase.php';
 
 /**

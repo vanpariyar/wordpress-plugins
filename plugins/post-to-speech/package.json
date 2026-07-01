@@ -6,7 +6,7 @@
 	"license": "GPL-2.0-or-later",
 	"main": "build/index.js",
 	"scripts": {
-		"copy:vendor": "bash scripts/copy-vendor.sh",
+		"copy:vendor": "mkdir -p assets/vendor/espeak-ng && cp node_modules/espeak-ng/dist/espeak-ng.js node_modules/espeak-ng/dist/espeak-ng.wasm assets/vendor/espeak-ng/",
 		"build": "npm run copy:vendor && wp-scripts build",
 		"postinstall": "npm run copy:vendor",
 		"start": "wp-scripts start",

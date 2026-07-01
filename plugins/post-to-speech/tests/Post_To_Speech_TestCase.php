@@ -5,6 +5,10 @@
  * @package Post_To_Speech
  */
 
+if ( ! defined( 'ABSPATH' ) ) {
+	exit;
+}
+
 use WP_Mock\Tools\TestCase as WpMockTestCase;
 
 /**

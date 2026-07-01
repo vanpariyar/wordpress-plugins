@@ -1,3 +1,0 @@
-# Pressship excludes build/ by default, but @wordpress/scripts block plugins need it.
-!build
-!build/**

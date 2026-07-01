@@ -331,6 +331,7 @@ class Post_To_Speech_REST_API {
 			);
 		}
 
+		// phpcs:disable WordPress.WP.AlternativeFunctions.file_system_operations_fopen, WordPress.WP.AlternativeFunctions.file_system_operations_fclose -- Stream-decoding base64 requires incremental writes; WP_Filesystem has no equivalent.
 		$handle = fopen( $tmp_file, 'wb' );
 
 		if ( false === $handle ) {
@@ -386,6 +387,7 @@ class Post_To_Speech_REST_API {
 		}
 
 		fclose( $handle );
+		// phpcs:enable WordPress.WP.AlternativeFunctions.file_system_operations_fopen, WordPress.WP.AlternativeFunctions.file_system_operations_fclose
 
 		if ( 0 === $decoded_size ) {
 			wp_delete_file( $tmp_file );

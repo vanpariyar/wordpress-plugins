@@ -96,6 +96,11 @@ main() {
 				bash "$MONOREPO_ROOT/scripts/pack-plugin.sh" "$slug" "$MONOREPO_ROOT"
 				exit 0
 			fi
+
+			if [ -f "$plugin_dir/.distignore" ] && [ "$command" = "verify" ]; then
+				bash "$MONOREPO_ROOT/scripts/verify-plugin.sh" "$slug" "$@"
+				exit 0
+			fi
 			;;
 	esac
 
