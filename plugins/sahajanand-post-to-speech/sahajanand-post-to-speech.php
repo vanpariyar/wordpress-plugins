@@ -3,10 +3,10 @@
  * Plugin Name:       Sahajanand Post to Speech
  * Plugin URI:        https://wordpress.org/plugins/sahajanand-post-to-speech/
  * Description:       Convert post content or custom text to speech with Sahajanand Post to Speech and embed an audio player using a Gutenberg block.
- * Version:           1.4.0
+ * Version:           1.0.0
  * Requires at least: 6.0
  * Requires PHP:      7.4
- * Author:            Ronak Sahajanand
+ * Author:            Ronak Vanpariya
  * Author URI:        https://vanpariyar.github.io
  * License:           GPL-2.0-or-later
  * License URI:       https://www.gnu.org/licenses/gpl-2.0.html
@@ -19,7 +19,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-define( 'POST_TO_SPEECH_VERSION', '1.4.0' );
+define( 'POST_TO_SPEECH_VERSION', '1.0.0' );
 define( 'POST_TO_SPEECH_PATH', plugin_dir_path( __FILE__ ) );
 define( 'POST_TO_SPEECH_URL', plugin_dir_url( __FILE__ ) );
 

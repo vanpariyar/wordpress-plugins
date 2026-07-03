@@ -5,7 +5,7 @@ Tags: audio, text-to-speech, gutenberg, speech, blog
 Requires at least: 6.0
 Tested up to: 7.0
 Requires PHP: 7.4
-Stable tag: 1.4.0
+Stable tag: 1.0.0
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -91,28 +91,14 @@ Yes. Browser mode needs no special server software. API mode only requires `wp_r
 
 == Changelog ==
 
-= 1.4.0 =
-* Renamed to **Sahajanand Post to Speech** (display name) with folder slug `sahajanand-post-to-speech`.
-* Block namespace updated to `sahajanand-post-to-speech/post-audio` (editor title: **Sahajanand Speech**).
-* Text domain and REST API namespace aligned to the new slug.
-* KittenTTS credited in readme; no Kitten branding in plugin name.
-
-= 1.3.0 =
-* Added post content vs custom text source for blog-to-audio workflows.
-* Frontend now shows only the audio player (no caption text).
-* Fixed browser phonemization for words like "writing".
-* WordPress.org submission readiness: uninstall cleanup, security hardening, documentation.
-
-= 1.2.0 =
-* Added API generation mode with server-side proxy and usage support.
-
-= 1.1.0 =
-* Browser-based WASM generation with ONNX Runtime Web and eSpeak-NG.
-
 = 1.0.0 =
-* Initial release.
+* Initial release of **Sahajanand Post to Speech**.
+* **Sahajanand Speech** Gutenberg block — convert post content or custom text to audio.
+* Browser (WASM) generation with ONNX Runtime Web and bundled eSpeak-NG.
+* Optional API mode for server-side generation via a compatible TTS HTTP service.
+* Eight voices, adjustable speed, and audio saved to the media library.
 
 == Upgrade Notice ==
 
-= 1.4.0 =
-Plugin renamed to Sahajanand Post to Speech. Install the `sahajanand-post-to-speech` folder and re-add the Sahajanand Speech block — blocks registered under the old `post-to-speech/post-audio` namespace will not load automatically.
+= 1.0.0 =
+Initial release.
