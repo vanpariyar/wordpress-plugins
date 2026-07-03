@@ -9,7 +9,7 @@ docker compose up -d
 - **Debug log:** `docker/wordpress-local/wp-content/debug.log`
 - **Fatal log:** `docker/wordpress-local/wp-content/pts-fatal.log`
 
-The `post-to-speech` plugin is mounted from `../../plugins/post-to-speech`.
+The `sahajanand-post-to-speech` plugin is mounted from `../../plugins/sahajanand-post-to-speech`.
 
 ## With KittenTTS API
 
@@ -71,12 +71,12 @@ Then log in at http://localhost:8888/wp-admin/ and activate **Post to Speech** o
 ```bash
 cat wp-content/debug.log
 cat wp-content/pts-fatal.log
-cat ../../plugins/post-to-speech/local-fatal.log
+cat ../../plugins/sahajanand-post-to-speech/local-fatal.log
 ```
 
 6. Ensure block assets exist:
 
 ```bash
-cd ../../plugins/post-to-speech
+cd ../../plugins/sahajanand-post-to-speech
 npm install && npm run build
 ```

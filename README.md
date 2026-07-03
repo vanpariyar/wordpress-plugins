@@ -18,7 +18,7 @@ wordpress-plugins/
 ├── plugins/                             # All WordPress plugins
 │   ├── creole-demo/                     # Shortcode demo plugin
 │   ├── creole-demo-lightbox/            # Lightbox demo plugin
-│   ├── post-to-speech/                  # Post-to-speech Gutenberg block
+│   ├── sahajanand-post-to-speech/         # Sahajanand Post to Speech Gutenberg block
 │   └── like/                            # Gutenberg block plugin
 ├── scripts/
 │   ├── bump-plugin-version.sh           # Version bump helper
@@ -38,7 +38,7 @@ wordpress-plugins/
 |--------|-------------|
 | [creole-demo](plugins/creole-demo/) | Display content using a shortcode |
 | [creole-demo-lightbox](plugins/creole-demo-lightbox/) | Lightbox demo plugin |
-| [post-to-speech](plugins/post-to-speech/) | Convert posts to audio with a Gutenberg block — browser WASM or API mode |
+| [sahajanand-post-to-speech](plugins/sahajanand-post-to-speech/) | Convert posts to audio with a Gutenberg block — browser WASM or API mode |
 
 ### KittenTTS API (Docker)
 
@@ -145,21 +145,21 @@ For publishing plugins to the [WordPress.org Plugin Directory](https://wordpress
 ./scripts/pressship.sh whoami
 
 # Inspect a plugin
-./scripts/pressship.sh info post-to-speech
-./scripts/pressship.sh status post-to-speech
+./scripts/pressship.sh info sahajanand-post-to-speech
+./scripts/pressship.sh status sahajanand-post-to-speech
 
 # Validate and package (builds block assets automatically; use pack-plugin.sh so build/ is included)
-./scripts/pack-plugin.sh post-to-speech
+./scripts/pack-plugin.sh sahajanand-post-to-speech
 
 # Or via Pressship wrapper (pack uses pack-plugin.sh; verify/publish still use Pressship)
-./scripts/pressship.sh verify post-to-speech
+./scripts/pressship.sh verify sahajanand-post-to-speech
 
 # Publish to WordPress.org (dry-run first)
-./scripts/pressship.sh publish post-to-speech --dry-run
-./scripts/pressship.sh publish post-to-speech
+./scripts/pressship.sh publish sahajanand-post-to-speech --dry-run
+./scripts/pressship.sh publish sahajanand-post-to-speech
 
 # Demo in WordPress Playground
-./scripts/pressship.sh demo post-to-speech
+./scripts/pressship.sh demo sahajanand-post-to-speech
 ```
 
 `publish` routes automatically: new plugins go through review (`submit`), approved plugins release to SVN (`release`). Use `--submit` or `--release` to be explicit.

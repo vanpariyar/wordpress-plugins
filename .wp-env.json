@@ -2,7 +2,7 @@
 	"core": "WordPress/WordPress",
 	"phpVersion": "8.2",
 	"plugins": [
-		"./plugins/post-to-speech"
+		"./plugins/sahajanand-post-to-speech"
 	],
 	"config": {
 		"WP_DEBUG": true,

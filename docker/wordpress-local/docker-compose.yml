@@ -28,7 +28,7 @@ services:
       WORDPRESS_DB_NAME: wordpress
       WORDPRESS_DEBUG: "1"
     volumes:
-      - ../../plugins/post-to-speech:/var/www/html/wp-content/plugins/post-to-speech
+      - ../../plugins/sahajanand-post-to-speech:/var/www/html/wp-content/plugins/sahajanand-post-to-speech
       - ./config/wp-config.php:/var/www/html/wp-config.php:ro
       - ./config/wp-config-debug.php:/var/www/html/wp-config-debug.php:ro
       - ./entrypoint-local.sh:/usr/local/bin/entrypoint-local.sh:ro

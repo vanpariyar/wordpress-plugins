@@ -27,10 +27,10 @@ Commands:
 
 Examples:
   scripts/pressship.sh login
-  scripts/pressship.sh verify post-to-speech
-  scripts/pressship.sh pack post-to-speech
-  scripts/pressship.sh publish post-to-speech --dry-run
-  scripts/pressship.sh demo post-to-speech
+  scripts/pressship.sh verify sahajanand-post-to-speech
+  scripts/pressship.sh pack sahajanand-post-to-speech
+  scripts/pressship.sh publish sahajanand-post-to-speech --dry-run
+  scripts/pressship.sh demo sahajanand-post-to-speech
 
 Requires Node.js 20+ and npx. See https://pressship.org/docs/getting-started
 EOF

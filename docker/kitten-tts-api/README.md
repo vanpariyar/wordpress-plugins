@@ -1,6 +1,6 @@
 # KittenTTS API Service
 
-Self-hosted [KittenTTS](https://github.com/KittenML/KittenTTS) API with API-key authentication and pay-per-request usage tracking. Designed to pair with the **post-to-speech** WordPress plugin in API mode.
+Self-hosted [KittenTTS](https://github.com/KittenML/KittenTTS) API with API-key authentication and pay-per-request usage tracking. Designed to pair with the **Sahajanand Post to Speech** WordPress plugin in API mode.
 
 ## Features
 
