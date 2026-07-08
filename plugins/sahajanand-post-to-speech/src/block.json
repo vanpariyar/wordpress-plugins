@@ -3,7 +3,7 @@
 	"apiVersion": 3,
 	"name": "sahajanand-post-to-speech/post-audio",
 	"version": "1.0.0",
-	"title": "Sahajanand Speech",
+	"title": "Sahajanand Post To Speech",
 	"category": "media",
 	"icon": "controls-volumeon",
 	"description": "Convert post content or custom text to speech with Sahajanand Post to Speech and embed an audio player.",

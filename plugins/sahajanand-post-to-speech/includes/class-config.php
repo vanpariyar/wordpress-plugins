@@ -12,7 +12,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 /**
  * Static plugin configuration for browser and API TTS modes.
  */
-class Post_To_Speech_Config {
+class Sahajanand_Post_To_Speech_Config {
 
 	const MODE_BROWSER = 'browser';
 	const MODE_API     = 'api';
@@ -59,7 +59,7 @@ class Post_To_Speech_Config {
 	 * @return string
 	 */
 	public static function get_generation_mode() {
-		$mode = get_option( 'post_to_speech_generation_mode', self::MODE_BROWSER );
+		$mode = get_option( 'sahajanand_post_to_speech_generation_mode', self::MODE_BROWSER );
 
 		if ( ! in_array( $mode, self::get_generation_modes(), true ) ) {
 			return self::MODE_BROWSER;
@@ -74,7 +74,7 @@ class Post_To_Speech_Config {
 	 * @return array<string, mixed>
 	 */
 	public static function get_editor_settings() {
-		$model_repo = get_option( 'post_to_speech_model', 'KittenML/kitten-tts-nano-0.8-fp32' );
+		$model_repo = get_option( 'sahajanand_post_to_speech_model', 'KittenML/kitten-tts-nano-0.8-fp32' );
 		$mode       = self::get_generation_mode();
 
 		if ( self::MODE_BROWSER === $mode && substr( $model_repo, -5 ) === '-int8' ) {
@@ -84,13 +84,14 @@ class Post_To_Speech_Config {
 		return array(
 			'generationMode'  => $mode,
 			'modelRepo'       => $model_repo,
-			'defaultVoice'    => get_option( 'post_to_speech_default_voice', 'Bella' ),
+			'defaultVoice'    => get_option( 'sahajanand_post_to_speech_default_voice', 'Bella' ),
 			'defaultSpeed'    => 1.0,
 			'voices'          => self::get_voices(),
 			'voiceAliases'    => self::get_voice_aliases(),
 			'apiConfigured'   => self::MODE_API === $mode && self::is_api_configured(),
-			'pricePerRequest' => (float) get_option( 'post_to_speech_price_per_request', 0 ),
+			'pricePerRequest' => (float) get_option( 'sahajanand_post_to_speech_price_per_request', 0 ),
 			'espeakModuleUrl' => self::get_espeak_module_url(),
+			'onnxRuntimeUrl'  => self::get_onnx_runtime_url(),
 		);
 	}
 
@@ -100,11 +101,36 @@ class Post_To_Speech_Config {
 	 * @return string
 	 */
 	public static function get_espeak_module_url() {
-		if ( defined( 'POST_TO_SPEECH_URL' ) ) {
-			return POST_TO_SPEECH_URL . 'assets/vendor/espeak-ng/espeak-ng.js';
+		$local_file = SAHAJANAND_POST_TO_SPEECH_PATH . 'assets/vendor/espeak-ng/espeak-ng.js';
+		$local_wasm = SAHAJANAND_POST_TO_SPEECH_PATH . 'assets/vendor/espeak-ng/espeak-ng.wasm';
+
+		if ( file_exists( $local_file ) && file_exists( $local_wasm ) ) {
+			if ( defined( 'SAHAJANAND_POST_TO_SPEECH_URL' ) ) {
+				return SAHAJANAND_POST_TO_SPEECH_URL . 'assets/vendor/espeak-ng/espeak-ng.js';
+			}
+			return '/wp-content/plugins/sahajanand-post-to-speech/assets/vendor/espeak-ng/espeak-ng.js';
 		}
 
-		return '/wp-content/plugins/sahajanand-post-to-speech/assets/vendor/espeak-ng/espeak-ng.js';
+		return 'https://cdn.jsdelivr.net/npm/espeak-ng@1.0.2/dist/espeak-ng.js';
+	}
+
+	/**
+	 * URL to the bundled ONNX Runtime Web files (editor only).
+	 *
+	 * @return string
+	 */
+	public static function get_onnx_runtime_url() {
+		$local_file = SAHAJANAND_POST_TO_SPEECH_PATH . 'assets/vendor/onnxruntime-web/ort.min.js';
+		$local_wasm = SAHAJANAND_POST_TO_SPEECH_PATH . 'assets/vendor/onnxruntime-web/ort-wasm-simd-threaded.wasm';
+
+		if ( file_exists( $local_file ) && file_exists( $local_wasm ) ) {
+			if ( defined( 'SAHAJANAND_POST_TO_SPEECH_URL' ) ) {
+				return SAHAJANAND_POST_TO_SPEECH_URL . 'assets/vendor/onnxruntime-web';
+			}
+			return '/wp-content/plugins/sahajanand-post-to-speech/assets/vendor/onnxruntime-web';
+		}
+
+		return 'https://cdn.jsdelivr.net/npm/onnxruntime-web@1.20.1/dist';
 	}
 
 	/**
@@ -134,7 +160,7 @@ class Post_To_Speech_Config {
 
 		$default = 64 * MB_IN_BYTES;
 
-		return max( MB_IN_BYTES, (int) apply_filters( 'post_to_speech_max_upload_bytes', $default ) );
+		return max( MB_IN_BYTES, (int) apply_filters( 'sahajanand_post_to_speech_max_upload_bytes', $default ) );
 	}
 
 	/**
@@ -143,8 +169,8 @@ class Post_To_Speech_Config {
 	 * @return bool
 	 */
 	public static function is_api_configured() {
-		$api_url = get_option( 'post_to_speech_api_url', '' );
-		$api_key = get_option( 'post_to_speech_api_key', '' );
+		$api_url = get_option( 'sahajanand_post_to_speech_api_url', '' );
+		$api_key = get_option( 'sahajanand_post_to_speech_api_key', '' );
 
 		return ! empty( $api_url ) && ! empty( $api_key );
 	}

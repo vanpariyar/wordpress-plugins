@@ -6,7 +6,7 @@
 	"license": "GPL-2.0-or-later",
 	"main": "build/index.js",
 	"scripts": {
-		"copy:vendor": "mkdir -p assets/vendor/espeak-ng && cp node_modules/espeak-ng/dist/espeak-ng.js node_modules/espeak-ng/dist/espeak-ng.wasm assets/vendor/espeak-ng/",
+		"copy:vendor": "node copy-vendor-assets.js",
 		"build": "npm run copy:vendor && wp-scripts build",
 		"postinstall": "npm run copy:vendor",
 		"start": "wp-scripts start",
@@ -18,6 +18,7 @@
 		"@wordpress/scripts": "^30.0.0",
 		"espeak-ng": "^1.0.2",
 		"fflate": "^0.8.2",
-		"npyjs": "^0.6.0"
+		"npyjs": "^0.6.0",
+		"onnxruntime-web": "^1.20.1"
 	}
 }

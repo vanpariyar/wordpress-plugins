@@ -9,11 +9,11 @@ Stable tag: 1.0.0
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
-Turn blog posts into audio with the Sahajanand Speech Gutenberg block.
+Turn blog posts into audio with the Sahajanand Post To Speech Gutenberg block.
 
 == Description ==
 
-Sahajanand Post to Speech helps you convert WordPress posts into listenable audio. Add the **Sahajanand Speech** block, generate speech from your post content, and visitors get a simple audio player — no post text is shown on the frontend.
+Sahajanand Post to Speech helps you convert WordPress posts into listenable audio. Add the **Sahajanand Post To Speech** block, generate speech from your post content, and visitors get a simple audio player — no post text is shown on the frontend.
 
 **Features**
 
@@ -42,7 +42,7 @@ This plugin may contact the following third-party services when generating audio
 **Browser mode (editor only)**
 
 * [Hugging Face](https://huggingface.co/) — downloads speech model files configured in settings (default models published by KittenML).
-* [jsDelivr CDN](https://www.jsdelivr.com/) — loads ONNX Runtime Web in the editor. eSpeak-NG is bundled with the plugin.
+* [jsDelivr CDN](https://www.jsdelivr.com/) — loads ONNX Runtime Web and eSpeak-NG in the editor if they are not bundled locally.
 
 **API mode (server-side, when configured)**
 
@@ -55,7 +55,7 @@ No data is sent to external services on the public frontend unless you use API m
 1. Upload the plugin folder to `/wp-content/plugins/sahajanand-post-to-speech/` or install from the WordPress plugin directory.
 2. Activate the plugin through the **Plugins** screen.
 3. Go to **Settings → Sahajanand Post to Speech** and choose **Browser** or **API** mode.
-4. Edit a post, add the **Sahajanand Speech** block, and click **Generate audio**.
+4. Edit a post, add the **Sahajanand Post To Speech** block, and click **Generate audio**.
 
 == Frequently Asked Questions ==
 
@@ -69,7 +69,7 @@ No. Only the audio player is displayed to visitors.
 
 = Can I migrate from an older “Post to Speech” install? =
 
-This release uses the folder slug `sahajanand-post-to-speech` and block namespace `sahajanand-post-to-speech/post-audio`. Deactivate and remove any old plugin folder, install this version, then re-add the **Sahajanand Speech** block to your posts. Plugin settings are preserved when option keys match.
+This release uses the folder slug `sahajanand-post-to-speech` and block namespace `sahajanand-post-to-speech/post-audio`. Deactivate and remove any old plugin folder, install this version, then re-add the **Sahajanand Post To Speech** block to your posts. Plugin settings are preserved when option keys match.
 
 = Which mode should I use? =
 
@@ -85,7 +85,7 @@ Yes. Browser mode needs no special server software. API mode only requires `wp_r
 
 == Screenshots ==
 
-1. Sahajanand Speech block in the editor with post content preview
+1. Sahajanand Post To Speech block in the editor with post content preview
 2. Plugin settings — browser and API mode options
 3. Frontend audio player embedded in a post
 
@@ -93,7 +93,7 @@ Yes. Browser mode needs no special server software. API mode only requires `wp_r
 
 = 1.0.0 =
 * Initial release of **Sahajanand Post to Speech**.
-* **Sahajanand Speech** Gutenberg block — convert post content or custom text to audio.
+* **Sahajanand Post To Speech** Gutenberg block — convert post content or custom text to audio.
 * Browser (WASM) generation with ONNX Runtime Web and bundled eSpeak-NG.
 * Optional API mode for server-side generation via a compatible TTS HTTP service.
 * Eight voices, adjustable speed, and audio saved to the media library.

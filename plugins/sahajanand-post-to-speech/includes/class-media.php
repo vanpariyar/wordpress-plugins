@@ -12,7 +12,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 /**
  * Saves generated WAV audio to the media library.
  */
-class Post_To_Speech_Media {
+class Sahajanand_Post_To_Speech_Media {
 
 	/**
 	 * Upload a browser-generated WAV file to the media library.
@@ -24,7 +24,7 @@ class Post_To_Speech_Media {
 	public function upload_wav( $file, $post_id = 0 ) {
 		if ( empty( $file['tmp_name'] ) || ! file_exists( $file['tmp_name'] ) ) {
 			return new WP_Error(
-				'post_to_speech_missing_file',
+				'sahajanand_post_to_speech_missing_file',
 				__( 'No audio file was uploaded.', 'sahajanand-post-to-speech' ),
 				array( 'status' => 400 )
 			);
@@ -45,7 +45,7 @@ class Post_To_Speech_Media {
 	public function upload_wav_bytes( $wav_bytes, $post_id = 0 ) {
 		if ( empty( $wav_bytes ) ) {
 			return new WP_Error(
-				'post_to_speech_missing_file',
+				'sahajanand_post_to_speech_missing_file',
 				__( 'No audio data was provided.', 'sahajanand-post-to-speech' ),
 				array( 'status' => 400 )
 			);
@@ -63,7 +63,7 @@ class Post_To_Speech_Media {
 
 		if ( ! $tmp_file ) {
 			return new WP_Error(
-				'post_to_speech_temp_file',
+				'sahajanand_post_to_speech_temp_file',
 				__( 'Could not create a temporary file for audio upload.', 'sahajanand-post-to-speech' ),
 				array( 'status' => 500 )
 			);
@@ -86,7 +86,7 @@ class Post_To_Speech_Media {
 	public function upload_wav_temp_path( $tmp_path, $post_id = 0 ) {
 		if ( empty( $tmp_path ) || ! file_exists( $tmp_path ) ) {
 			return new WP_Error(
-				'post_to_speech_missing_file',
+				'sahajanand_post_to_speech_missing_file',
 				__( 'No audio file was uploaded.', 'sahajanand-post-to-speech' ),
 				array( 'status' => 400 )
 			);
@@ -148,15 +148,15 @@ class Post_To_Speech_Media {
 	 * @return true|WP_Error
 	 */
 	private function validate_upload_size( $byte_length ) {
-		if ( ! class_exists( 'Post_To_Speech_Config' ) ) {
+		if ( ! class_exists( 'Sahajanand_Post_To_Speech_Config' ) ) {
 			require_once dirname( __FILE__ ) . '/class-config.php';
 		}
 
-		$max_bytes = Post_To_Speech_Config::get_max_upload_bytes();
+		$max_bytes = Sahajanand_Post_To_Speech_Config::get_max_upload_bytes();
 
 		if ( $byte_length > $max_bytes ) {
 			return new WP_Error(
-				'post_to_speech_too_large',
+				'sahajanand_post_to_speech_too_large',
 				sprintf(
 					/* translators: 1: generated audio size, 2: maximum allowed size */
 					__( 'Generated audio (%1$s) exceeds the maximum upload size (%2$s). Try a shorter post or ask your site administrator to raise the limit.', 'sahajanand-post-to-speech' ),

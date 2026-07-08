@@ -12,7 +12,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 /**
  * Pass runtime settings to the block editor script.
  */
-class Post_To_Speech_Editor_Assets {
+class Sahajanand_Post_To_Speech_Editor_Assets {
 
 	/**
 	 * Constructor.
@@ -31,13 +31,13 @@ class Post_To_Speech_Editor_Assets {
 			return;
 		}
 
-		$settings = Post_To_Speech_Config::get_editor_settings();
+		$settings = Sahajanand_Post_To_Speech_Config::get_editor_settings();
 
-		$settings['settingsUrl'] = Post_To_Speech_Config::get_settings_page_url();
+		$settings['settingsUrl'] = Sahajanand_Post_To_Speech_Config::get_settings_page_url();
 
 		wp_add_inline_script(
 			$handle,
-			'window.postToSpeechSettings = ' . wp_json_encode( $settings ) . ';',
+			'window.sahajanandPostToSpeechSettings = ' . wp_json_encode( $settings ) . ';',
 			'before'
 		);
 	}

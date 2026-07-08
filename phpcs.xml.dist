@@ -23,6 +23,8 @@
                 <value>create_block_like</value>
                 <value>post_to_speech</value>
                 <value>Post_To_Speech</value>
+                <value>sahajanand_post_to_speech</value>
+                <value>Sahajanand_Post_To_Speech</value>
             </property>
         </properties>
     </rule>

@@ -19,9 +19,9 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-define( 'POST_TO_SPEECH_VERSION', '1.0.0' );
-define( 'POST_TO_SPEECH_PATH', plugin_dir_path( __FILE__ ) );
-define( 'POST_TO_SPEECH_URL', plugin_dir_url( __FILE__ ) );
+define( 'SAHAJANAND_POST_TO_SPEECH_VERSION', '1.0.0' );
+define( 'SAHAJANAND_POST_TO_SPEECH_PATH', plugin_dir_path( __FILE__ ) );
+define( 'SAHAJANAND_POST_TO_SPEECH_URL', plugin_dir_url( __FILE__ ) );
 
 if ( defined( 'WP_DEBUG' ) && WP_DEBUG && is_admin() ) {
 	register_shutdown_function(
@@ -32,39 +32,39 @@ if ( defined( 'WP_DEBUG' ) && WP_DEBUG && is_admin() ) {
 				return;
 			}
 
-			$line = gmdate( 'c' ) . ' ' . $error['message'] . ' in ' . $error['file'] . ':' . $error['line'] . PHP_EOL;
-			// phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_file_put_contents
-			file_put_contents( POST_TO_SPEECH_PATH . 'local-fatal.log', $line, FILE_APPEND );
+			$line = $error['message'] . ' in ' . $error['file'] . ':' . $error['line'];
+			// phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
+			error_log( $line );
 		}
 	);
 }
 
-require_once POST_TO_SPEECH_PATH . 'includes/class-config.php';
-require_once POST_TO_SPEECH_PATH . 'includes/class-media.php';
-require_once POST_TO_SPEECH_PATH . 'includes/class-api-client.php';
-require_once POST_TO_SPEECH_PATH . 'includes/class-settings.php';
-require_once POST_TO_SPEECH_PATH . 'includes/class-rest-api.php';
-require_once POST_TO_SPEECH_PATH . 'includes/class-editor-assets.php';
+require_once SAHAJANAND_POST_TO_SPEECH_PATH . 'includes/class-config.php';
+require_once SAHAJANAND_POST_TO_SPEECH_PATH . 'includes/class-media.php';
+require_once SAHAJANAND_POST_TO_SPEECH_PATH . 'includes/class-api-client.php';
+require_once SAHAJANAND_POST_TO_SPEECH_PATH . 'includes/class-settings.php';
+require_once SAHAJANAND_POST_TO_SPEECH_PATH . 'includes/class-rest-api.php';
+require_once SAHAJANAND_POST_TO_SPEECH_PATH . 'includes/class-editor-assets.php';
 
 /**
  * Register the Gutenberg block.
  */
-function post_to_speech_register_block() {
-	$block_dir = POST_TO_SPEECH_PATH . 'build';
+function sahajanand_post_to_speech_register_block() {
+	$block_dir = SAHAJANAND_POST_TO_SPEECH_PATH . 'build';
 
 	if ( ! file_exists( $block_dir . '/block.json' ) ) {
-		add_action( 'admin_notices', 'post_to_speech_missing_build_notice' );
+		add_action( 'admin_notices', 'sahajanand_post_to_speech_missing_build_notice' );
 		return;
 	}
 
 	register_block_type( $block_dir );
 }
-add_action( 'init', 'post_to_speech_register_block' );
+add_action( 'init', 'sahajanand_post_to_speech_register_block' );
 
 /**
  * Warn administrators when compiled block assets are missing.
  */
-function post_to_speech_missing_build_notice() {
+function sahajanand_post_to_speech_missing_build_notice() {
 	if ( ! current_user_can( 'activate_plugins' ) ) {
 		return;
 	}
@@ -81,9 +81,9 @@ function post_to_speech_missing_build_notice() {
 /**
  * Bootstrap plugin services.
  */
-function post_to_speech_bootstrap() {
-	new Post_To_Speech_Settings();
-	new Post_To_Speech_REST_API();
-	new Post_To_Speech_Editor_Assets();
+function sahajanand_post_to_speech_bootstrap() {
+	new Sahajanand_Post_To_Speech_Settings();
+	new Sahajanand_Post_To_Speech_REST_API();
+	new Sahajanand_Post_To_Speech_Editor_Assets();
 }
-add_action( 'plugins_loaded', 'post_to_speech_bootstrap' );
+add_action( 'plugins_loaded', 'sahajanand_post_to_speech_bootstrap' );

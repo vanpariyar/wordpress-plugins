@@ -1,6 +1,6 @@
 <?php
 /**
- * Tests for Post_To_Speech_Media.
+ * Tests for Sahajanand_Post_To_Speech_Media.
  *
  * @package Post_To_Speech
  */
@@ -9,17 +9,17 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-require_once __DIR__ . '/Post_To_Speech_TestCase.php';
+require_once __DIR__ . '/Sahajanand_Post_To_Speech_TestCase.php';
 
 /**
  * Media helper tests.
  */
-class Post_To_Speech_Media_Test extends Post_To_Speech_TestCase {
+class Sahajanand_Post_To_Speech_Media_Test extends Sahajanand_Post_To_Speech_TestCase {
 
 	/**
 	 * Media instance.
 	 *
-	 * @var Post_To_Speech_Media
+	 * @var Sahajanand_Post_To_Speech_Media
 	 */
 	private $media;
 
@@ -32,7 +32,7 @@ class Post_To_Speech_Media_Test extends Post_To_Speech_TestCase {
 		$this->load_include( 'class-config.php' );
 		$this->load_include( 'class-media.php' );
 
-		$this->media = new Post_To_Speech_Media();
+		$this->media = new Sahajanand_Post_To_Speech_Media();
 	}
 
 	/**
@@ -54,7 +54,7 @@ class Post_To_Speech_Media_Test extends Post_To_Speech_TestCase {
 		);
 
 		$this->assertInstanceOf( WP_Error::class, $result );
-		$this->assertSame( 'post_to_speech_missing_file', $result->get_error_code() );
+		$this->assertSame( 'sahajanand_post_to_speech_missing_file', $result->get_error_code() );
 	}
 
 	/**
@@ -64,6 +64,6 @@ class Post_To_Speech_Media_Test extends Post_To_Speech_TestCase {
 		$result = $this->media->upload_wav_bytes( '' );
 
 		$this->assertInstanceOf( WP_Error::class, $result );
-		$this->assertSame( 'post_to_speech_missing_file', $result->get_error_code() );
+		$this->assertSame( 'sahajanand_post_to_speech_missing_file', $result->get_error_code() );
 	}
 }

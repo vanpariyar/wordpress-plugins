@@ -1,6 +1,6 @@
 <?php
 /**
- * Tests for Post_To_Speech_REST_API.
+ * Tests for Sahajanand_Post_To_Speech_REST_API.
  *
  * @package Post_To_Speech
  */
@@ -9,17 +9,17 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-require_once __DIR__ . '/Post_To_Speech_TestCase.php';
+require_once __DIR__ . '/Sahajanand_Post_To_Speech_TestCase.php';
 
 /**
  * REST API tests.
  */
-class Post_To_Speech_REST_API_Test extends Post_To_Speech_TestCase {
+class Sahajanand_Post_To_Speech_REST_API_Test extends Sahajanand_Post_To_Speech_TestCase {
 
 	/**
 	 * REST API instance.
 	 *
-	 * @var Post_To_Speech_REST_API
+	 * @var Sahajanand_Post_To_Speech_REST_API
 	 */
 	private $api;
 
@@ -34,7 +34,7 @@ class Post_To_Speech_REST_API_Test extends Post_To_Speech_TestCase {
 		$this->load_include( 'class-api-client.php' );
 		$this->load_include( 'class-rest-api.php' );
 
-		$this->api = new Post_To_Speech_REST_API();
+		$this->api = new Sahajanand_Post_To_Speech_REST_API();
 	}
 
 	/**
@@ -77,7 +77,7 @@ class Post_To_Speech_REST_API_Test extends Post_To_Speech_TestCase {
 		$result = $this->api->upload_audio( $request );
 
 		$this->assertInstanceOf( WP_Error::class, $result );
-		$this->assertSame( 'post_to_speech_missing_file', $result->get_error_code() );
+		$this->assertSame( 'sahajanand_post_to_speech_missing_file', $result->get_error_code() );
 	}
 
 	/**
@@ -96,7 +96,7 @@ class Post_To_Speech_REST_API_Test extends Post_To_Speech_TestCase {
 		$result = $this->api->upload_audio( $request );
 
 		$this->assertInstanceOf( WP_Error::class, $result );
-		$this->assertSame( 'post_to_speech_invalid_audio', $result->get_error_code() );
+		$this->assertSame( 'sahajanand_post_to_speech_invalid_audio', $result->get_error_code() );
 	}
 
 	/**
@@ -119,7 +119,7 @@ class Post_To_Speech_REST_API_Test extends Post_To_Speech_TestCase {
 		$result = $this->api->upload_audio( $request );
 
 		$this->assertInstanceOf( WP_Error::class, $result );
-		$this->assertSame( 'post_to_speech_forbidden_post', $result->get_error_code() );
+		$this->assertSame( 'sahajanand_post_to_speech_forbidden_post', $result->get_error_code() );
 	}
 
 	/**
@@ -127,8 +127,8 @@ class Post_To_Speech_REST_API_Test extends Post_To_Speech_TestCase {
 	 */
 	public function test_generate_audio_rejects_browser_mode() {
 		WP_Mock::userFunction( 'get_option' )
-			->with( 'post_to_speech_generation_mode', Post_To_Speech_Config::MODE_BROWSER )
-			->andReturn( Post_To_Speech_Config::MODE_BROWSER );
+			->with( 'sahajanand_post_to_speech_generation_mode', Sahajanand_Post_To_Speech_Config::MODE_BROWSER )
+			->andReturn( Sahajanand_Post_To_Speech_Config::MODE_BROWSER );
 
 		$request = new WP_REST_Request(
 			'POST',
@@ -142,7 +142,7 @@ class Post_To_Speech_REST_API_Test extends Post_To_Speech_TestCase {
 		$result = $this->api->generate_audio( $request );
 
 		$this->assertInstanceOf( WP_Error::class, $result );
-		$this->assertSame( 'post_to_speech_wrong_mode', $result->get_error_code() );
+		$this->assertSame( 'sahajanand_post_to_speech_wrong_mode', $result->get_error_code() );
 	}
 
 	/**
@@ -153,9 +153,9 @@ class Post_To_Speech_REST_API_Test extends Post_To_Speech_TestCase {
 			->andReturnUsing(
 				function ( $key, $default = false ) {
 					$options = array(
-						'post_to_speech_generation_mode' => Post_To_Speech_Config::MODE_API,
-						'post_to_speech_api_url'         => 'https://tts.example.com/',
-						'post_to_speech_api_key'         => 'secret',
+						'sahajanand_post_to_speech_generation_mode' => Sahajanand_Post_To_Speech_Config::MODE_API,
+						'sahajanand_post_to_speech_api_url'         => 'https://tts.example.com/',
+						'sahajanand_post_to_speech_api_key'         => 'secret',
 					);
 
 					return $options[ $key ] ?? $default;
@@ -175,7 +175,7 @@ class Post_To_Speech_REST_API_Test extends Post_To_Speech_TestCase {
 		$result = $this->api->generate_audio( $request );
 
 		$this->assertInstanceOf( WP_Error::class, $result );
-		$this->assertSame( 'post_to_speech_invalid_voice', $result->get_error_code() );
+		$this->assertSame( 'sahajanand_post_to_speech_invalid_voice', $result->get_error_code() );
 	}
 }
 

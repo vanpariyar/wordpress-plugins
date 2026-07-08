@@ -1,6 +1,6 @@
 <?php
 /**
- * Tests for Post_To_Speech_Config.
+ * Tests for Sahajanand_Post_To_Speech_Config.
  *
  * @package Post_To_Speech
  */
@@ -9,12 +9,12 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-require_once __DIR__ . '/Post_To_Speech_TestCase.php';
+require_once __DIR__ . '/Sahajanand_Post_To_Speech_TestCase.php';
 
 /**
  * Config class tests.
  */
-class Post_To_Speech_Config_Test extends Post_To_Speech_TestCase {
+class Sahajanand_Post_To_Speech_Config_Test extends Sahajanand_Post_To_Speech_TestCase {
 
 	/**
 	 * Set up test environment.
@@ -35,8 +35,8 @@ class Post_To_Speech_Config_Test extends Post_To_Speech_TestCase {
 	 * Voices list should contain eight entries.
 	 */
 	public function test_get_voices_returns_eight_voices() {
-		$this->assertCount( 8, Post_To_Speech_Config::get_voices() );
-		$this->assertContains( 'Bella', Post_To_Speech_Config::get_voices() );
+		$this->assertCount( 8, Sahajanand_Post_To_Speech_Config::get_voices() );
+		$this->assertContains( 'Bella', Sahajanand_Post_To_Speech_Config::get_voices() );
 	}
 
 	/**
@@ -44,10 +44,10 @@ class Post_To_Speech_Config_Test extends Post_To_Speech_TestCase {
 	 */
 	public function test_get_generation_mode_falls_back_to_browser() {
 		WP_Mock::userFunction( 'get_option' )
-			->with( 'post_to_speech_generation_mode', Post_To_Speech_Config::MODE_BROWSER )
+			->with( 'sahajanand_post_to_speech_generation_mode', Sahajanand_Post_To_Speech_Config::MODE_BROWSER )
 			->andReturn( 'invalid-mode' );
 
-		$this->assertSame( Post_To_Speech_Config::MODE_BROWSER, Post_To_Speech_Config::get_generation_mode() );
+		$this->assertSame( Sahajanand_Post_To_Speech_Config::MODE_BROWSER, Sahajanand_Post_To_Speech_Config::get_generation_mode() );
 	}
 
 	/**
@@ -58,19 +58,19 @@ class Post_To_Speech_Config_Test extends Post_To_Speech_TestCase {
 			->andReturnUsing(
 				function ( $key, $default = false ) {
 					$options = array(
-						'post_to_speech_generation_mode'   => Post_To_Speech_Config::MODE_BROWSER,
-						'post_to_speech_model'             => 'KittenML/kitten-tts-nano-0.8-int8',
-						'post_to_speech_default_voice'     => 'Jasper',
-						'post_to_speech_price_per_request' => 0,
+						'sahajanand_post_to_speech_generation_mode'   => Sahajanand_Post_To_Speech_Config::MODE_BROWSER,
+						'sahajanand_post_to_speech_model'             => 'KittenML/kitten-tts-nano-0.8-int8',
+						'sahajanand_post_to_speech_default_voice'     => 'Jasper',
+						'sahajanand_post_to_speech_price_per_request' => 0,
 					);
 
 					return $options[ $key ] ?? $default;
 				}
 			);
 
-		$settings = Post_To_Speech_Config::get_editor_settings();
+		$settings = Sahajanand_Post_To_Speech_Config::get_editor_settings();
 
-		$this->assertSame( Post_To_Speech_Config::MODE_BROWSER, $settings['generationMode'] );
+		$this->assertSame( Sahajanand_Post_To_Speech_Config::MODE_BROWSER, $settings['generationMode'] );
 		$this->assertSame( 'KittenML/kitten-tts-nano-0.8-fp32', $settings['modelRepo'] );
 		$this->assertFalse( $settings['apiConfigured'] );
 		$this->assertArrayNotHasKey( 'settingsUrl', $settings );
@@ -86,7 +86,7 @@ class Post_To_Speech_Config_Test extends Post_To_Speech_TestCase {
 
 		$this->assertSame(
 			'http://example.com/wp-admin/options-general.php?page=sahajanand-post-to-speech',
-			Post_To_Speech_Config::get_settings_page_url()
+			Sahajanand_Post_To_Speech_Config::get_settings_page_url()
 		);
 	}
 
@@ -98,23 +98,23 @@ class Post_To_Speech_Config_Test extends Post_To_Speech_TestCase {
 			->andReturnUsing(
 				function ( $key ) {
 					$options = array(
-						'post_to_speech_api_url' => 'https://tts.example.com/',
-						'post_to_speech_api_key' => 'secret',
+						'sahajanand_post_to_speech_api_url' => 'https://tts.example.com/',
+						'sahajanand_post_to_speech_api_key' => 'secret',
 					);
 
 					return $options[ $key ] ?? '';
 				}
 			);
 
-		$this->assertTrue( Post_To_Speech_Config::is_api_configured() );
+		$this->assertTrue( Sahajanand_Post_To_Speech_Config::is_api_configured() );
 	}
 
 	/**
 	 * Model repo validation should reject unknown repos.
 	 */
 	public function test_is_allowed_model_repo_rejects_unknown_repo() {
-		$this->assertFalse( Post_To_Speech_Config::is_allowed_model_repo( 'Evil/unknown-model' ) );
-		$this->assertTrue( Post_To_Speech_Config::is_allowed_model_repo( 'KittenML/kitten-tts-mini-0.8' ) );
+		$this->assertFalse( Sahajanand_Post_To_Speech_Config::is_allowed_model_repo( 'Evil/unknown-model' ) );
+		$this->assertTrue( Sahajanand_Post_To_Speech_Config::is_allowed_model_repo( 'KittenML/kitten-tts-mini-0.8' ) );
 	}
 
 	/**
@@ -122,13 +122,13 @@ class Post_To_Speech_Config_Test extends Post_To_Speech_TestCase {
 	 */
 	public function test_get_max_upload_bytes_defaults_to_sixty_four_megabytes() {
 		WP_Mock::userFunction( 'apply_filters' )
-			->with( 'post_to_speech_max_upload_bytes', 64 * MB_IN_BYTES )
+			->with( 'sahajanand_post_to_speech_max_upload_bytes', 64 * MB_IN_BYTES )
 			->andReturnUsing(
 				function ( $tag, $value ) {
 					return $value;
 				}
 			);
 
-		$this->assertSame( 64 * MB_IN_BYTES, Post_To_Speech_Config::get_max_upload_bytes() );
+		$this->assertSame( 64 * MB_IN_BYTES, Sahajanand_Post_To_Speech_Config::get_max_upload_bytes() );
 	}
 }

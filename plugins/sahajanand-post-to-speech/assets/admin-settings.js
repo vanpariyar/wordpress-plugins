@@ -1,5 +1,5 @@
 ( function () {
-	const modeField = document.getElementById( 'post_to_speech_generation_mode' );
+	const modeField = document.getElementById( 'sahajanand_post_to_speech_generation_mode' );
 
 	if ( ! modeField ) {
 		return;

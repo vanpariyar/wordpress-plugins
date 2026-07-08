@@ -1,6 +1,6 @@
 <?php
 /**
- * Tests for Post_To_Speech_Settings sanitization.
+ * Tests for Sahajanand_Post_To_Speech_Settings sanitization.
  *
  * @package Post_To_Speech
  */
@@ -9,17 +9,17 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-require_once __DIR__ . '/Post_To_Speech_TestCase.php';
+require_once __DIR__ . '/Sahajanand_Post_To_Speech_TestCase.php';
 
 /**
  * Settings sanitization tests.
  */
-class Post_To_Speech_Settings_Test extends Post_To_Speech_TestCase {
+class Sahajanand_Post_To_Speech_Settings_Test extends Sahajanand_Post_To_Speech_TestCase {
 
 	/**
 	 * Settings instance.
 	 *
-	 * @var Post_To_Speech_Settings
+	 * @var Sahajanand_Post_To_Speech_Settings
 	 */
 	private $settings;
 
@@ -43,7 +43,7 @@ class Post_To_Speech_Settings_Test extends Post_To_Speech_TestCase {
 		$this->load_include( 'class-config.php' );
 		$this->load_include( 'class-settings.php' );
 
-		$this->settings = new Post_To_Speech_Settings();
+		$this->settings = new Sahajanand_Post_To_Speech_Settings();
 	}
 
 	/**
@@ -58,7 +58,7 @@ class Post_To_Speech_Settings_Test extends Post_To_Speech_TestCase {
 	 */
 	public function test_sanitize_generation_mode_rejects_invalid_value() {
 		$this->assertSame(
-			Post_To_Speech_Config::MODE_BROWSER,
+			Sahajanand_Post_To_Speech_Config::MODE_BROWSER,
 			$this->settings->sanitize_generation_mode( 'not-a-mode' )
 		);
 	}
@@ -68,8 +68,8 @@ class Post_To_Speech_Settings_Test extends Post_To_Speech_TestCase {
 	 */
 	public function test_sanitize_generation_mode_accepts_api_mode() {
 		$this->assertSame(
-			Post_To_Speech_Config::MODE_API,
-			$this->settings->sanitize_generation_mode( Post_To_Speech_Config::MODE_API )
+			Sahajanand_Post_To_Speech_Config::MODE_API,
+			$this->settings->sanitize_generation_mode( Sahajanand_Post_To_Speech_Config::MODE_API )
 		);
 	}
 

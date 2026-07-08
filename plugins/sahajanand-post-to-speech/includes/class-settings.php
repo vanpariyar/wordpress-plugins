@@ -12,7 +12,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 /**
  * Registers and renders Sahajanand Post to Speech settings.
  */
-class Post_To_Speech_Settings {
+class Sahajanand_Post_To_Speech_Settings {
 
 	/**
 	 * Constructor.
@@ -41,18 +41,18 @@ class Post_To_Speech_Settings {
 	 */
 	public function register_settings() {
 		register_setting(
-			'post_to_speech_settings',
-			'post_to_speech_generation_mode',
+			'sahajanand_post_to_speech_settings',
+			'sahajanand_post_to_speech_generation_mode',
 			array(
 				'type'              => 'string',
 				'sanitize_callback' => array( $this, 'sanitize_generation_mode' ),
-				'default'           => Post_To_Speech_Config::MODE_BROWSER,
+				'default'           => Sahajanand_Post_To_Speech_Config::MODE_BROWSER,
 			)
 		);
 
 		register_setting(
-			'post_to_speech_settings',
-			'post_to_speech_model',
+			'sahajanand_post_to_speech_settings',
+			'sahajanand_post_to_speech_model',
 			array(
 				'type'              => 'string',
 				'sanitize_callback' => array( $this, 'sanitize_model_repo' ),
@@ -61,8 +61,8 @@ class Post_To_Speech_Settings {
 		);
 
 		register_setting(
-			'post_to_speech_settings',
-			'post_to_speech_default_voice',
+			'sahajanand_post_to_speech_settings',
+			'sahajanand_post_to_speech_default_voice',
 			array(
 				'type'              => 'string',
 				'sanitize_callback' => 'sanitize_text_field',
@@ -71,8 +71,8 @@ class Post_To_Speech_Settings {
 		);
 
 		register_setting(
-			'post_to_speech_settings',
-			'post_to_speech_api_url',
+			'sahajanand_post_to_speech_settings',
+			'sahajanand_post_to_speech_api_url',
 			array(
 				'type'              => 'string',
 				'sanitize_callback' => array( $this, 'sanitize_api_url' ),
@@ -81,8 +81,8 @@ class Post_To_Speech_Settings {
 		);
 
 		register_setting(
-			'post_to_speech_settings',
-			'post_to_speech_api_key',
+			'sahajanand_post_to_speech_settings',
+			'sahajanand_post_to_speech_api_key',
 			array(
 				'type'              => 'string',
 				'sanitize_callback' => 'sanitize_text_field',
@@ -91,8 +91,8 @@ class Post_To_Speech_Settings {
 		);
 
 		register_setting(
-			'post_to_speech_settings',
-			'post_to_speech_price_per_request',
+			'sahajanand_post_to_speech_settings',
+			'sahajanand_post_to_speech_price_per_request',
 			array(
 				'type'              => 'number',
 				'sanitize_callback' => array( $this, 'sanitize_price' ),
@@ -101,62 +101,62 @@ class Post_To_Speech_Settings {
 		);
 
 		add_settings_section(
-			'post_to_speech_main',
+			'sahajanand_post_to_speech_main',
 			__( 'Generation Mode', 'sahajanand-post-to-speech' ),
 			array( $this, 'render_section' ),
 			'sahajanand-post-to-speech'
 		);
 
 		add_settings_field(
-			'post_to_speech_generation_mode',
+			'sahajanand_post_to_speech_generation_mode',
 			__( 'Mode', 'sahajanand-post-to-speech' ),
 			array( $this, 'render_mode_field' ),
 			'sahajanand-post-to-speech',
-			'post_to_speech_main'
+			'sahajanand_post_to_speech_main'
 		);
 
 		add_settings_field(
-			'post_to_speech_model',
+			'sahajanand_post_to_speech_model',
 			__( 'Browser model', 'sahajanand-post-to-speech' ),
 			array( $this, 'render_model_field' ),
 			'sahajanand-post-to-speech',
-			'post_to_speech_main',
+			'sahajanand_post_to_speech_main',
 			array( 'class' => 'sahajanand-speech-setting-browser' )
 		);
 
 		add_settings_field(
-			'post_to_speech_api_url',
+			'sahajanand_post_to_speech_api_url',
 			__( 'API base URL', 'sahajanand-post-to-speech' ),
 			array( $this, 'render_api_url_field' ),
 			'sahajanand-post-to-speech',
-			'post_to_speech_main',
+			'sahajanand_post_to_speech_main',
 			array( 'class' => 'sahajanand-speech-setting-api' )
 		);
 
 		add_settings_field(
-			'post_to_speech_api_key',
+			'sahajanand_post_to_speech_api_key',
 			__( 'API key', 'sahajanand-post-to-speech' ),
 			array( $this, 'render_api_key_field' ),
 			'sahajanand-post-to-speech',
-			'post_to_speech_main',
+			'sahajanand_post_to_speech_main',
 			array( 'class' => 'sahajanand-speech-setting-api' )
 		);
 
 		add_settings_field(
-			'post_to_speech_price_per_request',
+			'sahajanand_post_to_speech_price_per_request',
 			__( 'Price per request', 'sahajanand-post-to-speech' ),
 			array( $this, 'render_price_field' ),
 			'sahajanand-post-to-speech',
-			'post_to_speech_main',
+			'sahajanand_post_to_speech_main',
 			array( 'class' => 'sahajanand-speech-setting-api' )
 		);
 
 		add_settings_field(
-			'post_to_speech_default_voice',
+			'sahajanand_post_to_speech_default_voice',
 			__( 'Default voice', 'sahajanand-post-to-speech' ),
 			array( $this, 'render_voice_field' ),
 			'sahajanand-post-to-speech',
-			'post_to_speech_main'
+			'sahajanand_post_to_speech_main'
 		);
 	}
 
@@ -172,9 +172,9 @@ class Post_To_Speech_Settings {
 
 		wp_enqueue_script(
 			'sahajanand-post-to-speech-settings',
-			POST_TO_SPEECH_URL . 'assets/admin-settings.js',
+			SAHAJANAND_POST_TO_SPEECH_URL . 'assets/admin-settings.js',
 			array(),
-			POST_TO_SPEECH_VERSION,
+			SAHAJANAND_POST_TO_SPEECH_VERSION,
 			true
 		);
 	}
@@ -188,8 +188,8 @@ class Post_To_Speech_Settings {
 	public function sanitize_generation_mode( $mode ) {
 		$mode = sanitize_text_field( $mode );
 
-		if ( ! in_array( $mode, Post_To_Speech_Config::get_generation_modes(), true ) ) {
-			return Post_To_Speech_Config::MODE_BROWSER;
+		if ( ! in_array( $mode, Sahajanand_Post_To_Speech_Config::get_generation_modes(), true ) ) {
+			return Sahajanand_Post_To_Speech_Config::MODE_BROWSER;
 		}
 
 		return $mode;
@@ -204,10 +204,10 @@ class Post_To_Speech_Settings {
 	public function sanitize_model_repo( $model_repo ) {
 		$model_repo = sanitize_text_field( $model_repo );
 
-		if ( ! Post_To_Speech_Config::is_allowed_model_repo( $model_repo ) ) {
+		if ( ! Sahajanand_Post_To_Speech_Config::is_allowed_model_repo( $model_repo ) ) {
 			add_settings_error(
-				'post_to_speech_model',
-				'post_to_speech_invalid_model',
+				'sahajanand_post_to_speech_model',
+				'sahajanand_post_to_speech_invalid_model',
 				__( 'Please choose one of the supported KittenTTS models.', 'sahajanand-post-to-speech' )
 			);
 
@@ -232,8 +232,8 @@ class Post_To_Speech_Settings {
 
 		if ( ! wp_http_validate_url( $url ) ) {
 			add_settings_error(
-				'post_to_speech_api_url',
-				'post_to_speech_invalid_api_url',
+				'sahajanand_post_to_speech_api_url',
+				'sahajanand_post_to_speech_invalid_api_url',
 				__( 'Please enter a valid HTTP or HTTPS API URL.', 'sahajanand-post-to-speech' )
 			);
 
@@ -286,19 +286,19 @@ class Post_To_Speech_Settings {
 	 * Render generation mode field.
 	 */
 	public function render_mode_field() {
-		$value = get_option( 'post_to_speech_generation_mode', Post_To_Speech_Config::MODE_BROWSER );
+		$value = get_option( 'sahajanand_post_to_speech_generation_mode', Sahajanand_Post_To_Speech_Config::MODE_BROWSER );
 
-		echo '<select name="post_to_speech_generation_mode" id="post_to_speech_generation_mode">';
+		echo '<select name="sahajanand_post_to_speech_generation_mode" id="sahajanand_post_to_speech_generation_mode">';
 		printf(
 			'<option value="%s" %s>%s</option>',
-			esc_attr( Post_To_Speech_Config::MODE_BROWSER ),
-			selected( $value, Post_To_Speech_Config::MODE_BROWSER, false ),
+			esc_attr( Sahajanand_Post_To_Speech_Config::MODE_BROWSER ),
+			selected( $value, Sahajanand_Post_To_Speech_Config::MODE_BROWSER, false ),
 			esc_html__( 'Browser (WASM in editor)', 'sahajanand-post-to-speech' )
 		);
 		printf(
 			'<option value="%s" %s>%s</option>',
-			esc_attr( Post_To_Speech_Config::MODE_API ),
-			selected( $value, Post_To_Speech_Config::MODE_API, false ),
+			esc_attr( Sahajanand_Post_To_Speech_Config::MODE_API ),
+			selected( $value, Sahajanand_Post_To_Speech_Config::MODE_API, false ),
 			esc_html__( 'API (external KittenTTS service)', 'sahajanand-post-to-speech' )
 		);
 		echo '</select>';
@@ -308,8 +308,8 @@ class Post_To_Speech_Settings {
 	 * Render model field.
 	 */
 	public function render_model_field() {
-		$value  = get_option( 'post_to_speech_model', 'KittenML/kitten-tts-nano-0.8-int8' );
-		$models = Post_To_Speech_Config::get_allowed_model_repos();
+		$value  = get_option( 'sahajanand_post_to_speech_model', 'KittenML/kitten-tts-nano-0.8-int8' );
+		$models = Sahajanand_Post_To_Speech_Config::get_allowed_model_repos();
 		$labels = array(
 			'KittenML/kitten-tts-nano-0.8-int8' => __( 'Nano int8 (~25 MB)', 'sahajanand-post-to-speech' ),
 			'KittenML/kitten-tts-nano-0.8-fp32' => __( 'Nano fp32 (~56 MB)', 'sahajanand-post-to-speech' ),
@@ -317,7 +317,7 @@ class Post_To_Speech_Settings {
 			'KittenML/kitten-tts-mini-0.8'      => __( 'Mini (~80 MB)', 'sahajanand-post-to-speech' ),
 		);
 
-		echo '<select name="post_to_speech_model">';
+		echo '<select name="sahajanand_post_to_speech_model">';
 		foreach ( $models as $model ) {
 			printf(
 				'<option value="%s" %s>%s</option>',
@@ -334,9 +334,9 @@ class Post_To_Speech_Settings {
 	 * Render API URL field.
 	 */
 	public function render_api_url_field() {
-		$value = get_option( 'post_to_speech_api_url', '' );
+		$value = get_option( 'sahajanand_post_to_speech_api_url', '' );
 		printf(
-			'<input type="url" class="regular-text" name="post_to_speech_api_url" value="%s" placeholder="https://tts.example.com/" />',
+			'<input type="url" class="regular-text" name="sahajanand_post_to_speech_api_url" value="%s" placeholder="https://tts.example.com/" />',
 			esc_attr( $value )
 		);
 		echo '<p class="description">' . esc_html__( 'Base URL of your KittenTTS API service (include trailing slash).', 'sahajanand-post-to-speech' ) . '</p>';
@@ -346,9 +346,9 @@ class Post_To_Speech_Settings {
 	 * Render API key field.
 	 */
 	public function render_api_key_field() {
-		$value = get_option( 'post_to_speech_api_key', '' );
+		$value = get_option( 'sahajanand_post_to_speech_api_key', '' );
 		printf(
-			'<input type="password" class="regular-text" name="post_to_speech_api_key" value="%s" autocomplete="new-password" />',
+			'<input type="password" class="regular-text" name="sahajanand_post_to_speech_api_key" value="%s" autocomplete="new-password" />',
 			esc_attr( $value )
 		);
 		echo '<p class="description">' . esc_html__( 'Stored on the server and never exposed to the browser.', 'sahajanand-post-to-speech' ) . '</p>';
@@ -358,9 +358,9 @@ class Post_To_Speech_Settings {
 	 * Render price per request field.
 	 */
 	public function render_price_field() {
-		$value = get_option( 'post_to_speech_price_per_request', 0 );
+		$value = get_option( 'sahajanand_post_to_speech_price_per_request', 0 );
 		printf(
-			'<input type="number" step="0.0001" min="0" class="small-text" name="post_to_speech_price_per_request" value="%s" />',
+			'<input type="number" step="0.0001" min="0" class="small-text" name="sahajanand_post_to_speech_price_per_request" value="%s" />',
 			esc_attr( $value )
 		);
 		echo '<p class="description">' . esc_html__( 'Display-only estimate shown in the editor. Actual billing is handled by your API service.', 'sahajanand-post-to-speech' ) . '</p>';
@@ -370,10 +370,10 @@ class Post_To_Speech_Settings {
 	 * Render default voice field.
 	 */
 	public function render_voice_field() {
-		$value  = get_option( 'post_to_speech_default_voice', 'Bella' );
-		$voices = Post_To_Speech_Config::get_voices();
+		$value  = get_option( 'sahajanand_post_to_speech_default_voice', 'Bella' );
+		$voices = Sahajanand_Post_To_Speech_Config::get_voices();
 
-		echo '<select name="post_to_speech_default_voice">';
+		echo '<select name="sahajanand_post_to_speech_default_voice">';
 		foreach ( $voices as $voice ) {
 			printf(
 				'<option value="%s" %s>%s</option>',
@@ -397,7 +397,7 @@ class Post_To_Speech_Settings {
 			<h1><?php echo esc_html( get_admin_page_title() ); ?></h1>
 			<form action="options.php" method="post">
 				<?php
-				settings_fields( 'post_to_speech_settings' );
+				settings_fields( 'sahajanand_post_to_speech_settings' );
 				do_settings_sections( 'sahajanand-post-to-speech' );
 				submit_button();
 				?>

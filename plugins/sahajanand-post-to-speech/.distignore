@@ -29,3 +29,7 @@ WORDPRESS-ORG.md
 webpack.config.js
 
 # Keep src/ in the WordPress.org zip — reviewers require unminified JS sources.
+
+# Exclude large WASM files to keep the WordPress.org submission ZIP under 10 MB
+assets/vendor/espeak-ng/espeak-ng.wasm
+assets/vendor/onnxruntime-web/ort-wasm-simd-threaded.wasm

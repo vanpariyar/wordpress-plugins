@@ -6,18 +6,13 @@ import { normalizePhonemeString } from './text-cleaner';
 
 // 1.27.x ort.min.js pulls the JSEP worker (ort-wasm-simd-threaded.jsep.*), which has
 // been missing or 404 on jsDelivr. 1.20.1 is pinned for stable CDN + WASM-only inference.
-const ONNX_VERSION = '1.20.1';
-const ONNX_CDN_BASES = [
-	`https://cdn.jsdelivr.net/npm/onnxruntime-web@${ ONNX_VERSION }/dist`,
-	`https://unpkg.com/onnxruntime-web@${ ONNX_VERSION }/dist`,
-];
 /**
  * Resolve the bundled eSpeak-NG module URL from editor settings.
  *
  * @return {string}
  */
 function getEspeakModuleUrl() {
-	const url = window.postToSpeechSettings?.espeakModuleUrl;
+	const url = window.sahajanandPostToSpeechSettings?.espeakModuleUrl;
 
 	if ( ! url ) {
 		throw new Error(
@@ -29,48 +24,44 @@ function getEspeakModuleUrl() {
 }
 
 /**
- * Point ONNX Runtime Web at CDN-hosted WASM/worker files.
+ * Point ONNX Runtime Web at local WASM/worker files.
  *
  * @param {typeof import('onnxruntime-web')} ort ONNX Runtime global.
- * @param {string}                             cdnBase CDN dist directory (no trailing slash).
+ * @param {string}                             localBase Local dist directory (no trailing slash).
  */
-function configureOrtEnv( ort, cdnBase ) {
+function configureOrtEnv( ort, localBase ) {
 	// Workers resolve WASM relative to the page unless wasmPaths is set explicitly.
-	ort.env.wasm.wasmPaths = `${ cdnBase }/`;
+	ort.env.wasm.wasmPaths = `${ localBase }/`;
 	// wp-admin does not send COOP/COEP, so disable threaded WASM (needs SharedArrayBuffer).
 	ort.env.wasm.numThreads = 1;
 }
 
 /**
- * Load ONNX Runtime Web from CDN.
+ * Load ONNX Runtime Web locally.
  *
  * @return {Promise<typeof import('onnxruntime-web')>}
  */
 export async function loadOnnxRuntime() {
+	const localBase = window.sahajanandPostToSpeechSettings?.onnxRuntimeUrl;
+
+	if ( ! localBase ) {
+		throw new Error( 'ONNX Runtime base path is not configured.' );
+	}
+
 	if ( window.ort ) {
-		configureOrtEnv( window.ort, ONNX_CDN_BASES[ 0 ] );
+		configureOrtEnv( window.ort, localBase );
 		return window.ort;
 	}
 
-	let lastError = null;
+	await loadScript( `${ localBase }/ort.min.js` );
 
-	for ( const cdnBase of ONNX_CDN_BASES ) {
-		try {
-			await loadScript( `${ cdnBase }/ort.min.js` );
-
-			if ( ! window.ort ) {
-				throw new Error( 'ONNX Runtime Web failed to load.' );
-			}
-
-			configureOrtEnv( window.ort, cdnBase );
-
-			return window.ort;
-		} catch ( error ) {
-			lastError = error;
-		}
+	if ( ! window.ort ) {
+		throw new Error( 'ONNX Runtime Web failed to load.' );
 	}
 
-	throw lastError || new Error( 'ONNX Runtime Web failed to load from CDN.' );
+	configureOrtEnv( window.ort, localBase );
+
+	return window.ort;
 }
 
 /**

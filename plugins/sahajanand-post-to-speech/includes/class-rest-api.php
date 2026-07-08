@@ -12,7 +12,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 /**
  * Registers REST routes used by the Gutenberg block.
  */
-class Post_To_Speech_REST_API {
+class Sahajanand_Post_To_Speech_REST_API {
 
 	/**
 	 * Constructor.
@@ -31,7 +31,7 @@ class Post_To_Speech_REST_API {
 			array(
 				'methods'             => WP_REST_Server::CREATABLE,
 				'callback'            => array( $this, 'upload_audio' ),
-				'permission_callback' => array( $this, 'can_edit_content' ),
+				'permission_callback' => array( $this, 'can_upload_files' ),
 				'args'                => array(
 					'audio'   => array(
 						'type'              => 'string',
@@ -54,7 +54,7 @@ class Post_To_Speech_REST_API {
 			array(
 				'methods'             => WP_REST_Server::CREATABLE,
 				'callback'            => array( $this, 'generate_audio' ),
-				'permission_callback' => array( $this, 'can_edit_content' ),
+				'permission_callback' => array( $this, 'can_upload_files' ),
 				'args'                => array(
 					'text'    => array(
 						'required'          => true,
@@ -112,6 +112,15 @@ class Post_To_Speech_REST_API {
 	}
 
 	/**
+	 * Check whether the current user can upload files.
+	 *
+	 * @return bool
+	 */
+	public function can_upload_files() {
+		return current_user_can( 'edit_posts' ) && current_user_can( 'upload_files' );
+	}
+
+	/**
 	 * Check whether the current user may attach audio to a post.
 	 *
 	 * @param int $post_id Post ID.
@@ -133,7 +142,7 @@ class Post_To_Speech_REST_API {
 	 * @return WP_REST_Response
 	 */
 	public function get_config() {
-		return rest_ensure_response( Post_To_Speech_Config::get_editor_settings() );
+		return rest_ensure_response( Sahajanand_Post_To_Speech_Config::get_editor_settings() );
 	}
 
 	/**
@@ -142,15 +151,15 @@ class Post_To_Speech_REST_API {
 	 * @return WP_REST_Response|WP_Error
 	 */
 	public function get_usage() {
-		if ( Post_To_Speech_Config::MODE_API !== Post_To_Speech_Config::get_generation_mode() ) {
+		if ( Sahajanand_Post_To_Speech_Config::MODE_API !== Sahajanand_Post_To_Speech_Config::get_generation_mode() ) {
 			return new WP_Error(
-				'post_to_speech_not_api_mode',
+				'sahajanand_post_to_speech_not_api_mode',
 				__( 'Usage stats are only available in API mode.', 'sahajanand-post-to-speech' ),
 				array( 'status' => 400 )
 			);
 		}
 
-		$client = new Post_To_Speech_API_Client();
+		$client = new Sahajanand_Post_To_Speech_API_Client();
 		$usage  = $client->get_usage();
 
 		if ( is_wp_error( $usage ) ) {
@@ -167,17 +176,17 @@ class Post_To_Speech_REST_API {
 	 * @return WP_REST_Response|WP_Error
 	 */
 	public function generate_audio( WP_REST_Request $request ) {
-		if ( Post_To_Speech_Config::MODE_API !== Post_To_Speech_Config::get_generation_mode() ) {
+		if ( Sahajanand_Post_To_Speech_Config::MODE_API !== Sahajanand_Post_To_Speech_Config::get_generation_mode() ) {
 			return new WP_Error(
-				'post_to_speech_wrong_mode',
+				'sahajanand_post_to_speech_wrong_mode',
 				__( 'Server API generation is disabled. Switch to API mode in plugin settings.', 'sahajanand-post-to-speech' ),
 				array( 'status' => 400 )
 			);
 		}
 
-		if ( ! Post_To_Speech_Config::is_api_configured() ) {
+		if ( ! Sahajanand_Post_To_Speech_Config::is_api_configured() ) {
 			return new WP_Error(
-				'post_to_speech_api_not_configured',
+				'sahajanand_post_to_speech_api_not_configured',
 				__( 'KittenTTS API URL and API key must be configured.', 'sahajanand-post-to-speech' ),
 				array( 'status' => 400 )
 			);
@@ -189,15 +198,15 @@ class Post_To_Speech_REST_API {
 
 		if ( empty( trim( $text ) ) ) {
 			return new WP_Error(
-				'post_to_speech_empty_text',
+				'sahajanand_post_to_speech_empty_text',
 				__( 'Please enter text to convert to audio.', 'sahajanand-post-to-speech' ),
 				array( 'status' => 400 )
 			);
 		}
 
-		if ( ! in_array( $voice, Post_To_Speech_Config::get_voices(), true ) ) {
+		if ( ! in_array( $voice, Sahajanand_Post_To_Speech_Config::get_voices(), true ) ) {
 			return new WP_Error(
-				'post_to_speech_invalid_voice',
+				'sahajanand_post_to_speech_invalid_voice',
 				__( 'Invalid voice selected.', 'sahajanand-post-to-speech' ),
 				array( 'status' => 400 )
 			);
@@ -209,20 +218,20 @@ class Post_To_Speech_REST_API {
 
 		if ( ! $this->can_edit_post( $post_id ) ) {
 			return new WP_Error(
-				'post_to_speech_forbidden_post',
+				'sahajanand_post_to_speech_forbidden_post',
 				__( 'You do not have permission to attach audio to this post.', 'sahajanand-post-to-speech' ),
 				array( 'status' => 403 )
 			);
 		}
 
-		$client   = new Post_To_Speech_API_Client();
+		$client   = new Sahajanand_Post_To_Speech_API_Client();
 		$wav_data = $client->generate( $text, $voice, $speed );
 
 		if ( is_wp_error( $wav_data ) ) {
 			return $wav_data;
 		}
 
-		$media  = new Post_To_Speech_Media();
+		$media  = new Sahajanand_Post_To_Speech_Media();
 		$result = $media->upload_wav_bytes( $wav_data, $post_id );
 
 		if ( is_wp_error( $result ) ) {
@@ -243,13 +252,13 @@ class Post_To_Speech_REST_API {
 
 		if ( ! $this->can_edit_post( $post_id ) ) {
 			return new WP_Error(
-				'post_to_speech_forbidden_post',
+				'sahajanand_post_to_speech_forbidden_post',
 				__( 'You do not have permission to attach audio to this post.', 'sahajanand-post-to-speech' ),
 				array( 'status' => 403 )
 			);
 		}
 
-		$media = new Post_To_Speech_Media();
+		$media = new Sahajanand_Post_To_Speech_Media();
 
 		$files = $request->get_file_params();
 		if ( ! empty( $files['file'] ) ) {
@@ -265,7 +274,7 @@ class Post_To_Speech_REST_API {
 		$audio = $request->get_param( 'audio' );
 		if ( empty( $audio ) ) {
 			return new WP_Error(
-				'post_to_speech_missing_file',
+				'sahajanand_post_to_speech_missing_file',
 				__( 'No audio file was uploaded.', 'sahajanand-post-to-speech' ),
 				array( 'status' => 400 )
 			);
@@ -299,7 +308,7 @@ class Post_To_Speech_REST_API {
 	private function decode_base64_audio_to_temp_file( $audio ) {
 		if ( ! is_string( $audio ) || '' === $audio ) {
 			return new WP_Error(
-				'post_to_speech_invalid_audio',
+				'sahajanand_post_to_speech_invalid_audio',
 				__( 'Invalid audio payload.', 'sahajanand-post-to-speech' ),
 				array( 'status' => 400 )
 			);
@@ -307,7 +316,7 @@ class Post_To_Speech_REST_API {
 
 		if ( ! preg_match( '/^[A-Za-z0-9+\/=\r\n]+$/', $audio ) ) {
 			return new WP_Error(
-				'post_to_speech_invalid_audio',
+				'sahajanand_post_to_speech_invalid_audio',
 				__( 'Invalid audio payload.', 'sahajanand-post-to-speech' ),
 				array( 'status' => 400 )
 			);
@@ -315,17 +324,17 @@ class Post_To_Speech_REST_API {
 
 		require_once ABSPATH . 'wp-admin/includes/file.php';
 
-		if ( ! class_exists( 'Post_To_Speech_Config' ) ) {
+		if ( ! class_exists( 'Sahajanand_Post_To_Speech_Config' ) ) {
 			require_once dirname( __DIR__ ) . '/includes/class-config.php';
 		}
 
-		$max_bytes    = Post_To_Speech_Config::get_max_upload_bytes();
+		$max_bytes    = Sahajanand_Post_To_Speech_Config::get_max_upload_bytes();
 		$tmp_file     = wp_tempnam( 'post-to-speech-' );
 		$decoded_size = 0;
 
 		if ( ! $tmp_file ) {
 			return new WP_Error(
-				'post_to_speech_temp_file',
+				'sahajanand_post_to_speech_temp_file',
 				__( 'Could not create a temporary file for audio upload.', 'sahajanand-post-to-speech' ),
 				array( 'status' => 500 )
 			);
@@ -338,7 +347,7 @@ class Post_To_Speech_REST_API {
 			wp_delete_file( $tmp_file );
 
 			return new WP_Error(
-				'post_to_speech_temp_file',
+				'sahajanand_post_to_speech_temp_file',
 				__( 'Could not create a temporary file for audio upload.', 'sahajanand-post-to-speech' ),
 				array( 'status' => 500 )
 			);
@@ -346,7 +355,7 @@ class Post_To_Speech_REST_API {
 
 		$length         = strlen( $audio );
 		$base64_chunk   = 1024 * 1024;
-		$too_large_code = 'post_to_speech_too_large';
+		$too_large_code = 'sahajanand_post_to_speech_too_large';
 
 		for ( $offset = 0; $offset < $length; $offset += $base64_chunk ) {
 			$slice   = substr( $audio, $offset, $base64_chunk );
@@ -357,7 +366,7 @@ class Post_To_Speech_REST_API {
 				wp_delete_file( $tmp_file );
 
 				return new WP_Error(
-					'post_to_speech_invalid_audio',
+					'sahajanand_post_to_speech_invalid_audio',
 					__( 'Invalid audio payload.', 'sahajanand-post-to-speech' ),
 					array( 'status' => 400 )
 				);
@@ -393,7 +402,7 @@ class Post_To_Speech_REST_API {
 			wp_delete_file( $tmp_file );
 
 			return new WP_Error(
-				'post_to_speech_invalid_audio',
+				'sahajanand_post_to_speech_invalid_audio',
 				__( 'Invalid audio payload.', 'sahajanand-post-to-speech' ),
 				array( 'status' => 400 )
 			);

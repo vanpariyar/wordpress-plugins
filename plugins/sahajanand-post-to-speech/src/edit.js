@@ -90,7 +90,7 @@ export default function Edit( { attributes, setAttributes } ) {
 	const [ error, setError ] = useState( '' );
 	const [ voices, setVoices ] = useState( DEFAULT_VOICES );
 	const [ settings, setSettings ] = useState(
-		window.postToSpeechSettings || {}
+		window.sahajanandPostToSpeechSettings || {}
 	);
 
 	const { postId, postContent } = useSelect( ( select ) => {

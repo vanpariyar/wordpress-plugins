@@ -14,7 +14,7 @@ use WP_Mock\Tools\TestCase as WpMockTestCase;
 /**
  * Shared helpers for plugin unit tests.
  */
-abstract class Post_To_Speech_TestCase extends WpMockTestCase {
+abstract class Sahajanand_Post_To_Speech_TestCase extends WpMockTestCase {
 
 	/**
 	 * Register WordPress function mocks used across plugin tests.

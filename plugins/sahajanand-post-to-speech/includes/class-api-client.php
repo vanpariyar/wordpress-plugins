@@ -12,7 +12,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 /**
  * Calls a self-hosted or paid KittenTTS API and returns WAV bytes.
  */
-class Post_To_Speech_API_Client {
+class Sahajanand_Post_To_Speech_API_Client {
 
 	/**
 	 * Generate speech audio via the configured API service.
@@ -23,12 +23,12 @@ class Post_To_Speech_API_Client {
 	 * @return string|WP_Error Raw WAV bytes.
 	 */
 	public function generate( $text, $voice, $speed ) {
-		$api_url = trailingslashit( get_option( 'post_to_speech_api_url', '' ) );
-		$api_key = get_option( 'post_to_speech_api_key', '' );
+		$api_url = trailingslashit( get_option( 'sahajanand_post_to_speech_api_url', '' ) );
+		$api_key = get_option( 'sahajanand_post_to_speech_api_key', '' );
 
 		if ( empty( $api_url ) ) {
 			return new WP_Error(
-				'post_to_speech_missing_api_url',
+				'sahajanand_post_to_speech_missing_api_url',
 				__( 'KittenTTS API URL is not configured.', 'sahajanand-post-to-speech' ),
 				array( 'status' => 400 )
 			);
@@ -36,7 +36,7 @@ class Post_To_Speech_API_Client {
 
 		if ( empty( $api_key ) ) {
 			return new WP_Error(
-				'post_to_speech_missing_api_key',
+				'sahajanand_post_to_speech_missing_api_key',
 				__( 'KittenTTS API key is not configured.', 'sahajanand-post-to-speech' ),
 				array( 'status' => 400 )
 			);
@@ -59,7 +59,7 @@ class Post_To_Speech_API_Client {
 					'Content-Type'  => 'application/json',
 					'X-API-Key'     => $api_key,
 					'Accept'        => 'audio/wav',
-					'User-Agent'    => 'Sahajanand-Post-To-Speech-WordPress/' . POST_TO_SPEECH_VERSION,
+					'User-Agent'    => 'Sahajanand-Post-To-Speech-WordPress/' . SAHAJANAND_POST_TO_SPEECH_VERSION,
 				),
 				'body'    => $body,
 			)
@@ -81,7 +81,7 @@ class Post_To_Speech_API_Client {
 			}
 
 			return new WP_Error(
-				'post_to_speech_api_error',
+				'sahajanand_post_to_speech_api_error',
 				sprintf(
 					/* translators: 1: HTTP status code, 2: error message */
 					__( 'KittenTTS API error (%1$d): %2$s', 'sahajanand-post-to-speech' ),
@@ -94,7 +94,7 @@ class Post_To_Speech_API_Client {
 
 		if ( empty( $raw ) ) {
 			return new WP_Error(
-				'post_to_speech_api_empty',
+				'sahajanand_post_to_speech_api_empty',
 				__( 'KittenTTS API returned an empty audio response.', 'sahajanand-post-to-speech' ),
 				array( 'status' => 502 )
 			);
@@ -109,12 +109,12 @@ class Post_To_Speech_API_Client {
 	 * @return array|WP_Error
 	 */
 	public function get_usage() {
-		$api_url = trailingslashit( get_option( 'post_to_speech_api_url', '' ) );
-		$api_key = get_option( 'post_to_speech_api_key', '' );
+		$api_url = trailingslashit( get_option( 'sahajanand_post_to_speech_api_url', '' ) );
+		$api_key = get_option( 'sahajanand_post_to_speech_api_key', '' );
 
 		if ( empty( $api_url ) || empty( $api_key ) ) {
 			return new WP_Error(
-				'post_to_speech_api_not_configured',
+				'sahajanand_post_to_speech_api_not_configured',
 				__( 'KittenTTS API is not configured.', 'sahajanand-post-to-speech' )
 			);
 		}
@@ -126,7 +126,7 @@ class Post_To_Speech_API_Client {
 				'headers' => array(
 					'X-API-Key'  => $api_key,
 					'Accept'     => 'application/json',
-					'User-Agent' => 'Sahajanand-Post-To-Speech-WordPress/' . POST_TO_SPEECH_VERSION,
+					'User-Agent' => 'Sahajanand-Post-To-Speech-WordPress/' . SAHAJANAND_POST_TO_SPEECH_VERSION,
 				),
 			)
 		);
@@ -141,7 +141,7 @@ class Post_To_Speech_API_Client {
 
 		if ( 200 !== $status || ! is_array( $data ) ) {
 			return new WP_Error(
-				'post_to_speech_usage_error',
+				'sahajanand_post_to_speech_usage_error',
 				__( 'Could not fetch API usage information.', 'sahajanand-post-to-speech' )
 			);
 		}
