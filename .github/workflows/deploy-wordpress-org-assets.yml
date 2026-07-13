@@ -25,7 +25,7 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
         with:
-          fetch-depth: 2
+          fetch-depth: 1
 
       - name: Resolve plugin slug
         id: plugin
@@ -33,19 +33,15 @@ jobs:
           if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
             SLUG="${{ github.event.inputs.plugin }}"
           else
-            BEFORE="${{ github.event.before }}"
-            if [ -n "$BEFORE" ] && [ "$BEFORE" != "0000000000000000000000000000000000000000" ] && git cat-file -e "${BEFORE}^{commit}" 2>/dev/null; then
-              CHANGED="$(git diff --name-only "$BEFORE" "${{ github.sha }}")"
-            elif git rev-parse HEAD~1 >/dev/null 2>&1; then
-              CHANGED="$(git diff --name-only HEAD~1 HEAD)"
-            else
-              CHANGED="$(git show --pretty="" --name-only HEAD)"
-            fi
+            # Path filter guarantees .wporg_assets changed in this commit; avoid github.event.before (often missing from shallow checkout).
+            CHANGED="$(git show --pretty="" --name-only HEAD)"
             SLUG="$(echo "$CHANGED" | grep '^plugins/.*/\.wporg_assets/' | sed -E 's|^plugins/([^/]+)/\.wporg_assets/.*|\1|' | sort -u | head -n 1)"
           fi
 
           if [ -z "$SLUG" ]; then
             echo "Could not determine plugin slug from changed files." >&2
+            echo "Changed files in HEAD:" >&2
+            git show --pretty="" --name-only HEAD >&2 || true
             exit 1
           fi
 
@@ -55,6 +51,7 @@ jobs:
             exit 1
           fi
 
+          echo "Deploying assets for plugin: $SLUG"
           echo "slug=$SLUG" >> "$GITHUB_OUTPUT"
           echo "assets_dir=$ASSETS_DIR" >> "$GITHUB_OUTPUT"
 

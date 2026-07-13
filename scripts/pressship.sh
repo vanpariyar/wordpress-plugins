@@ -23,6 +23,7 @@ Commands:
   publish   Submit for review or release to WordPress.org SVN
   demo      Run the plugin in WordPress Playground
   release   Release an approved plugin to WordPress.org SVN
+  assets    Upload banner, icon, and screenshots to WordPress.org SVN
   submit    Submit a plugin for WordPress.org review
 
 Examples:
@@ -31,6 +32,7 @@ Examples:
   scripts/pressship.sh pack sahajanand-post-to-speech
   scripts/pressship.sh publish sahajanand-post-to-speech --dry-run
   scripts/pressship.sh demo sahajanand-post-to-speech
+  scripts/pressship.sh assets sahajanand-post-to-speech
 
 Requires Node.js 20+ and npx. See https://pressship.org/docs/getting-started
 EOF
@@ -68,6 +70,14 @@ main() {
 			;;
 		login|whoami)
 			exec npx pressship "$command" "$@"
+			;;
+		assets)
+			if [ $# -lt 1 ]; then
+				echo "Missing plugin slug for command: assets" >&2
+				usage
+				exit 1
+			fi
+			exec bash "$MONOREPO_ROOT/scripts/pressship-assets.sh" "$@"
 			;;
 	esac
 

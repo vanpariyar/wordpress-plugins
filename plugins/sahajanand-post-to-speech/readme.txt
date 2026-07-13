@@ -29,6 +29,11 @@ Sahajanand Post to Speech helps you convert WordPress posts into listenable audi
 * **Browser (WASM)** — runs in the block editor using ONNX Runtime Web. No server-side TTS engine required. Speech models are downloaded on first use.
 * **API** — proxies requests to a compatible HTTP TTS API you host. Useful for long posts or low-powered devices. Your API key stays on the server.
 
+
+### Tutorial
+
+[youtube https://youtu.be/V0eXbLQloZM]
+
 == Credits ==
 
 This plugin uses the open-source [KittenTTS](https://github.com/KittenML/KittenTTS) speech synthesis models from [KittenML](https://github.com/KittenML) and bundles [eSpeak-NG](https://github.com/espeak-ng/espeak-ng) (GPL-3.0-or-later) for browser phonemization.

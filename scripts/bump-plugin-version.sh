@@ -14,9 +14,9 @@ Usage:
   scripts/bump-plugin-version.sh <plugin-slug> [patch|minor|major|<version>]
 
 Examples:
-  scripts/bump-plugin-version.sh like patch
-  scripts/bump-plugin-version.sh creole-demo minor
-  scripts/bump-plugin-version.sh like 1.2.3
+  scripts/bump-plugin-version.sh sahajanand-post-to-speech patch
+  scripts/bump-plugin-version.sh sahajanand-post-to-speech minor
+  scripts/bump-plugin-version.sh sahajanand-post-to-speech 1.0.2
 
 Updates the plugin header Version, and when present also syncs:
   - package.json

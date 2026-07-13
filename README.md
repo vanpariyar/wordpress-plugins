@@ -1,6 +1,6 @@
 # WordPress Plugins Monorepo
 
-This repository is a monorepo containing multiple WordPress plugins under a unified structure. Each plugin lives in its own subdirectory inside the `plugins/` folder, operates independently, and is versioned/released separately.
+This repository is a monorepo for WordPress plugins. Each plugin lives in `plugins/<slug>/`, is versioned independently, and can be released to GitHub and WordPress.org on its own.
 
 Inspired by the [sahajananddigital/wordpress-plugins](https://github.com/sahajananddigital/wordpress-plugins) monorepo layout.
 
@@ -11,22 +11,27 @@ Inspired by the [sahajananddigital/wordpress-plugins](https://github.com/sahajan
 ```
 wordpress-plugins/
 ├── .github/
-│   └── workflows/
-│       ├── release-plugins.yml          # GitHub Release on version bump
-│       ├── deploy-wordpress-org.yml     # WordPress.org SVN on plugin tag
-│       └── deploy-wordpress-org-assets.yml
+│   ├── workflows/
+│   │   ├── release-plugins.yml           # GitHub Release + WordPress.org SVN deploy
+│   │   ├── verify-plugins.yml            # CI: validate release zip includes build/
+│   │   ├── deploy-wordpress-org.yml      # Manual WordPress.org SVN deploy
+│   │   └── deploy-wordpress-org-assets.yml
+│   └── wporg-plugins.json                # Plugins auto-deployed to WordPress.org
 ├── docker/
-│   └── kitten-tts-api/                    # Self-hosted KittenTTS API (pay-per-request)
-├── plugins/                             # All WordPress plugins
-│   ├── creole-demo/                     # Shortcode demo plugin
-│   ├── sahajanand-post-to-speech/         # Sahajanand Post to Speech Gutenberg block
-│   └── like/                            # Gutenberg block plugin
+│   ├── kitten-tts-api/                   # Self-hosted KittenTTS API (API mode)
+│   └── wordpress-local/                  # Local WordPress for plugin development
+├── plugins/
+│   └── sahajanand-post-to-speech/        # Sahajanand Post to Speech Gutenberg block
 ├── scripts/
-│   ├── bump-plugin-version.sh           # Version bump helper
-│   └── pressship.sh                     # WordPress.org publish helper (Pressship)
-├── composer.json                        # Shared PHP dev dependencies
-├── phpcs.xml.dist                       # WordPress coding standards config
-├── phpunit.xml.dist                     # PHPUnit test suite config
+│   ├── bump-plugin-version.sh            # Version bump helper
+│   ├── stage-plugin.sh                   # Build + .distignore staging
+│   ├── pack-plugin.sh                    # Create release zip (requires build/)
+│   ├── deploy-wordpress-org.sh           # SVN trunk/tags/assets deploy
+│   ├── pressship-assets.sh               # Upload .wporg_assets to WordPress.org
+│   └── pressship.sh                      # WordPress.org publish helper (Pressship)
+├── composer.json                         # Shared PHP dev dependencies
+├── phpcs.xml.dist
+├── phpunit.xml.dist
 ├── LICENSE
 └── README.md
 ```
@@ -35,12 +40,53 @@ wordpress-plugins/
 
 ## Plugins
 
-| Plugin | Description |
-|--------|-------------|
-| [creole-demo](plugins/creole-demo/) | Display content using a shortcode |
-| [sahajanand-post-to-speech](plugins/sahajanand-post-to-speech/) | Convert posts to audio with a Gutenberg block — browser WASM or API mode |
+| Plugin | Description | WordPress.org |
+|--------|-------------|---------------|
+| [sahajanand-post-to-speech](plugins/sahajanand-post-to-speech/) | Convert posts to audio with a Gutenberg block — browser WASM or API mode | [wordpress.org/plugins/sahajanand-post-to-speech](https://wordpress.org/plugins/sahajanand-post-to-speech/) |
 
-### KittenTTS API (Docker)
+**Current version:** 1.0.1
+
+---
+
+## Local Development
+
+### WordPress (Docker)
+
+```bash
+cd docker/wordpress-local
+docker compose up -d
+```
+
+- **WordPress:** http://localhost:8888
+- **Admin:** `admin` / `admin123`
+- The plugin is mounted from `plugins/sahajanand-post-to-speech/`
+
+See [docker/wordpress-local/README.md](docker/wordpress-local/README.md) for debugging, resets, and KittenTTS API setup.
+
+### Build plugin assets
+
+```bash
+cd plugins/sahajanand-post-to-speech
+npm install
+npm run build
+```
+
+Block plugins register from `build/` — the compiled output must be present for the block to work on WordPress.org installs.
+
+### PHP linting and tests
+
+From the repo root:
+
+```bash
+composer install
+composer lint      # Run PHPCS
+composer lint:fix  # Auto-fix coding standard issues
+composer test      # Run PHPUnit
+```
+
+---
+
+## KittenTTS API (optional)
 
 Self-host a pay-per-request KittenTTS API for the plugin's **API mode**:
 
@@ -52,138 +98,88 @@ docker compose up --build
 
 See [docker/kitten-tts-api/README.md](docker/kitten-tts-api/README.md) for endpoints, billing, and WordPress setup.
 
-| [like](plugins/like/) | Gutenberg block with Gilbert color font |
-
 ---
 
-## How Automated Releases Work
+## Automated Releases
 
-Releases are fully automated via GitHub Actions using **version detection** on plugins inside the `plugins/` folder. You do not need to manually create git tags or releases.
+Releases are driven by **version detection** in each plugin's main PHP file. You do not need to manually create git tags.
 
-### Version Bump Script
-
-Use the helper script to bump a plugin version and sync related files (`package.json`, `readme.txt`, `block.json`):
+### Version bump
 
 ```bash
 # List plugins and current versions
 ./scripts/bump-plugin-version.sh --list
 
 # Bump patch (default), minor, or major
-./scripts/bump-plugin-version.sh like patch
-./scripts/bump-plugin-version.sh creole-demo minor
+./scripts/bump-plugin-version.sh sahajanand-post-to-speech patch
 
 # Set an exact version
-./scripts/bump-plugin-version.sh like 1.2.3
+./scripts/bump-plugin-version.sh sahajanand-post-to-speech 1.0.2
 
 # Via Composer
-composer bump -- like patch
+composer bump -- sahajanand-post-to-speech patch
 ```
 
-### Triggering a Release
+Or update the `Version:` header in `plugins/sahajanand-post-to-speech/sahajanand-post-to-speech.php`, then commit and push to `master` / `main`.
 
-1. Make your changes inside a specific plugin directory (e.g. `plugins/creole-demo/`).
-2. Bump the plugin version with the script above, or manually update the **`Version:`** value in the plugin's main PHP file header:
+### Release flow
 
-   ```php
-   /**
-    * Plugin Name: Creole Plugin demo
-    * Version: 0.2.0    <-- Bump this version number
-    */
-   ```
+1. Push a version bump to `master` / `main`.
+2. `release-plugins.yml` detects the new version, runs `npm run build`, creates a tag like `sahajanand-post-to-speech/v1.0.1`, and publishes a GitHub Release zip.
+3. For plugins listed in `.github/wporg-plugins.json`, the same workflow deploys to WordPress.org SVN (`trunk`, `tags/<version>`, and `assets/`).
 
-3. Commit and push your changes to the `master` or `main` branch.
+Tag pushes from GitHub Actions do not trigger other workflows, so WordPress.org deploy runs in the release workflow itself.
 
-The workflow scans every plugin directory, compares the version in the plugin header against existing git tags, and creates a GitHub release with a `.zip` archive when a new version is detected.
+**CI:** `.github/workflows/verify-plugins.yml` runs on every push/PR that touches `plugins/` and validates the release zip includes `build/block.json`.
 
-### Compiling Assets (Gutenberg Blocks / SCSS / JS)
+### Release zip contents (`.distignore`)
 
-If a plugin directory contains a **`package.json`** file, the workflow will automatically:
-
-1. Install Node.js dependencies (`npm ci` or `npm install`).
-2. Run the build command (`npm run build`).
-
-This compiles Gutenberg blocks and packages production assets before creating the release archive.
-
-### Custom File Exclusions (`.distignore`)
-
-To control which files end up in the final release `.zip`, add a **`.distignore`** file to the root of your plugin directory.
-
-**Example `.distignore`:**
+Add a `.distignore` file in the plugin root to exclude dev files from the release zip. Example:
 
 ```text
-# Exclude testing environments
 tests/
-phpunit.xml.dist
-
-# Exclude package managers and source code
-composer.json
-composer.lock
-package.json
-package-lock.json
 node_modules/
 src/
-webpack.config.js
-
-# Exclude git system files
+package.json
+package-lock.json
 .gitignore
 .distignore
+.wporg_assets/
 ```
 
-If no `.distignore` file is present, the workflow falls back to a default set of exclusions (such as `tests/`, `composer.json`, and `vendor/`).
+The pack step uses `scripts/stage-plugin.sh` and `scripts/pack-plugin.sh`, which require `build/block.json` for block plugins.
 
 ---
 
-## WordPress.org Publishing (Pressship)
+## WordPress.org Publishing
 
-For publishing plugins to the [WordPress.org Plugin Directory](https://wordpress.org/plugins/), use [Pressship](https://pressship.org/docs/intro) — a CLI that handles validation, packaging, review submission, and SVN releases.
+### Pressship (manual)
+
+[Pressship](https://pressship.org/docs/intro) handles validation, packaging, review submission, and SVN releases.
 
 **Requirements:** Node.js 20+, a WordPress.org account, PHP (for Plugin Check), and `svn` (for approved-plugin releases).
 
 ```bash
-# Log in to WordPress.org (browser-based, no password stored)
 ./scripts/pressship.sh login
 ./scripts/pressship.sh whoami
 
-# Inspect a plugin
 ./scripts/pressship.sh info sahajanand-post-to-speech
 ./scripts/pressship.sh status sahajanand-post-to-speech
 
-# Validate and package (builds block assets automatically; use pack-plugin.sh so build/ is included)
 ./scripts/pack-plugin.sh sahajanand-post-to-speech
-
-# Or via Pressship wrapper (pack uses pack-plugin.sh; verify/publish still use Pressship)
 ./scripts/pressship.sh verify sahajanand-post-to-speech
 
-# Publish to WordPress.org (dry-run first)
 ./scripts/pressship.sh publish sahajanand-post-to-speech --dry-run
 ./scripts/pressship.sh publish sahajanand-post-to-speech
 
-# Demo in WordPress Playground
 ./scripts/pressship.sh demo sahajanand-post-to-speech
 ```
 
-`publish` routes automatically: new plugins go through review (`submit`), approved plugins release to SVN (`release`). Use `--submit` or `--release` to be explicit.
+`publish` routes automatically: new plugins go through review (`submit`); approved plugins release to SVN (`release`).
 
-Pressship complements the GitHub Actions workflow above — GitHub releases zip files for direct download; Pressship handles manual WordPress.org directory workflow when needed.
+### Automated SVN deploy
 
-### Automated WordPress.org SVN Deploy
-
-Inspired by [wp-post-views](https://github.com/vanpariyar/wp-post-views), pushing a new plugin version tag also deploys configured plugins to [WordPress.org SVN](https://wordpress.org/plugins/) automatically.
-
-**Flow:**
-
-1. Bump the plugin version and push to `master` / `main`.
-2. `release-plugins.yml` detects the new version, builds assets, creates a GitHub tag like `sahajanand-post-to-speech/v1.0.0`, and publishes a GitHub Release zip.
-3. `deploy-wordpress-org.yml` runs on that tag, builds the plugin again, and commits to WordPress.org SVN (`trunk` + `tags/1.0.0`).
-
-**One-time GitHub secrets** (repo → Settings → Secrets and variables → Actions):
-
-| Secret | Value |
-|--------|--------|
-| `WORDPRESS_USERNAME` | Your WordPress.org username (e.g. `vanpariyar`) |
-| `WORDPRESS_PASSWORD` | A WordPress.org [application password](https://wordpress.org/support/article/application-passwords/) |
-
-**Enable a plugin for deploy** — add its folder slug to `.github/wporg-plugins.json`:
+Plugins in `.github/wporg-plugins.json` deploy automatically when a new version is released:
 
 ```json
 {
@@ -193,35 +189,50 @@ Inspired by [wp-post-views](https://github.com/vanpariyar/wp-post-views), pushin
 }
 ```
 
-Plugins not listed in that file still get GitHub Releases, but are skipped for WordPress.org deploy.
+**GitHub secrets** (repo → Settings → Secrets and variables → Actions):
 
-**Screenshots / banners** — add files under `plugins/<slug>/.wporg_assets/` (same layout as [wp-post-views `.wporg_assets`](https://github.com/vanpariyar/wp-post-views/tree/master/.wporg_assets)). Pushing changes there runs `deploy-wordpress-org-assets.yml`.
+| Secret | Value |
+|--------|--------|
+| `WORDPRESS_USERNAME` | Your WordPress.org username |
+| `WORDPRESS_PASSWORD` | A WordPress.org [application password](https://wordpress.org/support/article/application-passwords/) |
 
-**Manual deploy (local or CI debugging):**
+You can also deploy manually via **Actions → Deploy to WordPress.org → Run workflow**, or locally:
 
 ```bash
-WORDPRESS_USERNAME=vanpariyar WORDPRESS_PASSWORD='xxxx xxxx xxxx xxxx' \
-  bash scripts/deploy-wordpress-org.sh sahajanand-post-to-speech 1.0.0
+WORDPRESS_USERNAME=youruser WORDPRESS_PASSWORD='xxxx xxxx xxxx xxxx' \
+  bash scripts/deploy-wordpress-org.sh sahajanand-post-to-speech 1.0.1
 
-# Preview without SVN commit
-bash scripts/deploy-wordpress-org.sh sahajanand-post-to-speech 1.0.0 --dry-run
+bash scripts/deploy-wordpress-org.sh sahajanand-post-to-speech 1.0.1 --dry-run
+```
+
+### Screenshots and banners
+
+Add files under `plugins/<slug>/.wporg_assets/`. Pushing changes there runs `deploy-wordpress-org-assets.yml`, or upload manually:
+
+```bash
+./scripts/pressship-assets.sh sahajanand-post-to-speech
+./scripts/pressship-assets.sh sahajanand-post-to-speech --dry-run
 ```
 
 ---
 
-## Development
+## What not to commit
 
-### PHP Linting & Tests
+These are gitignored or should never live in the repo:
 
-Install shared dev dependencies from the repo root:
+| Path | Reason |
+|------|--------|
+| `*.zip` | Release artifacts |
+| `build_dir/` | Staging output |
+| `.pressship-svn/` | Local SVN checkout |
+| `/sahajanand-post-to-speech/` (repo root) | Duplicate of `plugins/sahajanand-post-to-speech/` |
+| `node_modules/` | Install via `npm install` |
+| `.phpunit.result.cache` | PHPUnit cache |
 
-```bash
-composer install
-composer lint      # Run PHPCS
-composer lint:fix  # Auto-fix coding standard issues
-composer test      # Run PHPUnit (when plugin tests exist)
-```
+The canonical plugin path is **`plugins/sahajanand-post-to-speech/`** only.
 
-### Contributing
+---
 
-Anyone can contribute. Make changes inside the relevant `plugins/<plugin-name>/` directory and open a pull request.
+## Contributing
+
+Make changes inside `plugins/sahajanand-post-to-speech/` and open a pull request. CI validates the release zip before merge.

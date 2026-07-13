@@ -1,5 +1,8 @@
 name: Deploy to WordPress.org
 
+# Manual deploy or tags pushed outside GitHub Actions (e.g. local git push).
+# Normal releases deploy automatically from release-plugins.yml after GitHub Release.
+
 on:
   push:
     tags:

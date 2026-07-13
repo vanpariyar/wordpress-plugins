@@ -23,6 +23,53 @@ Environment:
 EOF
 }
 
+sync_wporg_assets() {
+	local plugin_dir="$1"
+	local svn_assets_dir="$2"
+	local assets_src=""
+
+	if [ -d "$plugin_dir/.wporg_assets" ]; then
+		assets_src="$plugin_dir/.wporg_assets"
+	elif [ -d "$plugin_dir/.wordpress-org" ]; then
+		assets_src="$plugin_dir/.wordpress-org"
+	else
+		return 0
+	fi
+
+	echo "Syncing WordPress.org assets from $assets_src..."
+	mkdir -p "$svn_assets_dir"
+	rsync -a --delete \
+		--exclude 'README.md' \
+		--include '*/' \
+		--include '*.png' --include '*.jpg' --include '*.jpeg' --include '*.gif' --include '*.svg' \
+		--exclude '*' \
+		"$assets_src/" "$svn_assets_dir/"
+}
+
+set_asset_mime_types() {
+	local svn_dir="$1"
+
+	(
+		cd "$svn_dir"
+		for png in assets/*.png; do
+			[ -f "$png" ] || continue
+			svn propset svn:mime-type image/png "$png" >/dev/null 2>&1 || true
+		done
+		for jpg in assets/*.jpg assets/*.jpeg; do
+			[ -f "$jpg" ] || continue
+			svn propset svn:mime-type image/jpeg "$jpg" >/dev/null 2>&1 || true
+		done
+		for gif in assets/*.gif; do
+			[ -f "$gif" ] || continue
+			svn propset svn:mime-type image/gif "$gif" >/dev/null 2>&1 || true
+		done
+		for svg in assets/*.svg; do
+			[ -f "$svg" ] || continue
+			svn propset svn:mime-type image/svg+xml "$svg" >/dev/null 2>&1 || true
+		done
+	)
+}
+
 if [ $# -lt 2 ]; then
 	usage
 	exit 1
@@ -68,30 +115,13 @@ if [ "$HEADER_VERSION" != "$VERSION" ]; then
 	exit 1
 fi
 
-if [ -f "$PLUGIN_DIR/package.json" ]; then
-	echo "Building assets in $SLUG..."
-	( cd "$PLUGIN_DIR" && npm ci --legacy-peer-deps 2>/dev/null || npm install --legacy-peer-deps )
-	( cd "$PLUGIN_DIR" && npm run build --if-present )
-fi
-
-if [ ! -f "$PLUGIN_DIR/build/block.json" ] && [ -f "$PLUGIN_DIR/package.json" ]; then
-	echo "Missing compiled block assets at $PLUGIN_DIR/build/block.json" >&2
-	exit 1
-fi
-
 STAGING_ROOT="$(mktemp -d)"
 cleanup() {
 	rm -rf "$STAGING_ROOT"
 }
 trap cleanup EXIT
 
-STAGING_DIR="$STAGING_ROOT/$SLUG"
-mkdir -p "$STAGING_DIR"
-cp -R "$PLUGIN_DIR/." "$STAGING_DIR/"
-
-if [ -f "$PLUGIN_DIR/.distignore" ]; then
-	bash "$MONOREPO_ROOT/scripts/apply-distignore.sh" "$STAGING_DIR" "$PLUGIN_DIR/.distignore"
-fi
+STAGING_DIR="$(bash "$MONOREPO_ROOT/scripts/stage-plugin.sh" "$SLUG" "$STAGING_ROOT")"
 
 SVN_SLUG="$(jq -r --arg slug "$SLUG" '.[$slug].slug // $slug' "$CONFIG_FILE")"
 SVN_URL="https://plugins.svn.wordpress.org/${SVN_SLUG}/"
@@ -104,6 +134,12 @@ if [ "$DRY_RUN" = true ]; then
 	echo "Staged files:"
 	find "$STAGING_DIR" -type f | wc -l | awk '{print "  " $1 " files"}'
 	du -sh "$STAGING_DIR" | awk '{print "  " $1 " total"}'
+	if [ -f "$STAGING_DIR/build/block.json" ]; then
+		echo "  build/block.json: present"
+	else
+		echo "  build/block.json: missing" >&2
+		exit 1
+	fi
 	exit 0
 fi
 
@@ -124,7 +160,10 @@ svn checkout --depth immediates "$SVN_URL" "$SVN_DIR"
 	echo "Syncing plugin files to trunk..."
 	rsync -ra --delete "$STAGING_DIR/" trunk/
 
-	echo "Committing trunk..."
+	sync_wporg_assets "$PLUGIN_DIR" "$SVN_DIR/assets"
+	set_asset_mime_types "$SVN_DIR"
+
+	echo "Committing trunk and assets..."
 	svn add . --force >/dev/null
 	if svn status | grep -q '^!'; then
 		svn status | grep '^!' | sed 's/! *//' | xargs -r svn rm >/dev/null

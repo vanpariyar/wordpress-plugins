@@ -4,8 +4,10 @@
 /.vscode/
 *.log
 .DS_Store
+.phpunit.result.cache
 composer.lock
 /tests/wordpress-stub/wp-admin/
 build_dir/
 *.zip
 .pressship-svn
+/sahajanand-post-to-speech/

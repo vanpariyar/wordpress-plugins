@@ -14,6 +14,8 @@ jobs:
   release:
     name: Auto Detect and Release Plugins
     runs-on: ubuntu-latest
+    outputs:
+      plugins: ${{ steps.scan.outputs.plugins }}
     steps:
       - name: Checkout Code
         uses: actions/checkout@v4
@@ -25,17 +27,22 @@ jobs:
         with:
           node-version: 24
 
+      - name: Install jq
+        run: sudo apt-get update && sudo apt-get install -y jq
+
       - name: Setup Git Configuration
         run: |
           git config --global user.name "github-actions[bot]"
           git config --global user.email "41898282+github-actions[bot]@users.noreply.github.com"
 
       - name: Scan and Release Plugins
+        id: scan
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           git fetch --tags
           MONOREPO_PATH=$(pwd)
+          RELEASED='[]'
 
           for DIR_PATH in plugins/*; do
             if [ ! -d "$DIR_PATH" ]; then
@@ -114,4 +121,49 @@ jobs:
               --notes "Automated release of $FRIENDLY_NAME version $VERSION."
 
             rm "$ZIP_NAME"
+
+            if [ -f "$MONOREPO_PATH/.github/wporg-plugins.json" ] && jq -e --arg slug "$DIR" 'has($slug)' "$MONOREPO_PATH/.github/wporg-plugins.json" >/dev/null; then
+              RELEASED=$(echo "$RELEASED" | jq -c --arg slug "$DIR" --arg version "$VERSION" '. + [{slug:$slug,version:$version}]')
+              echo "Queued WordPress.org deploy for $DIR $VERSION"
+            fi
           done
+
+          echo "plugins=$RELEASED" >> "$GITHUB_OUTPUT"
+          echo "Released plugins for WordPress.org deploy: $RELEASED"
+
+  deploy-wordpress-org:
+    name: Deploy to WordPress.org
+    needs: release
+    if: needs.release.outputs.plugins != '[]' && needs.release.outputs.plugins != ''
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        plugin: ${{ fromJson(needs.release.outputs.plugins) }}
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 24
+
+      - name: Install deploy tools
+        run: sudo apt-get update && sudo apt-get install -y subversion rsync jq
+
+      - name: Dry-run WordPress.org deploy
+        run: |
+          bash scripts/deploy-wordpress-org.sh \
+            "${{ matrix.plugin.slug }}" \
+            "${{ matrix.plugin.version }}" \
+            --dry-run
+
+      - name: Deploy to WordPress.org SVN
+        env:
+          WORDPRESS_USERNAME: ${{ secrets.WORDPRESS_USERNAME }}
+          WORDPRESS_PASSWORD: ${{ secrets.WORDPRESS_PASSWORD }}
+        run: |
+          bash scripts/deploy-wordpress-org.sh \
+            "${{ matrix.plugin.slug }}" \
+            "${{ matrix.plugin.version }}"

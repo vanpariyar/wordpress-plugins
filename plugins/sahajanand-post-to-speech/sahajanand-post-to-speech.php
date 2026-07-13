@@ -19,7 +19,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-define( 'SAHAJANAND_POST_TO_SPEECH_VERSION', '1.0.0' );
+define( 'SAHAJANAND_POST_TO_SPEECH_VERSION', '1.0.1' );
 define( 'SAHAJANAND_POST_TO_SPEECH_PATH', plugin_dir_path( __FILE__ ) );
 define( 'SAHAJANAND_POST_TO_SPEECH_URL', plugin_dir_url( __FILE__ ) );
 
