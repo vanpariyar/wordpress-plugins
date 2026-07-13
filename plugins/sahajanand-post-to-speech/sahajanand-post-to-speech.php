@@ -22,10 +22,6 @@ if ( ! defined( 'ABSPATH' ) ) {
 define( 'SAHAJANAND_POST_TO_SPEECH_VERSION', '1.0.0' );
 define( 'SAHAJANAND_POST_TO_SPEECH_PATH', plugin_dir_path( __FILE__ ) );
 define( 'SAHAJANAND_POST_TO_SPEECH_URL', plugin_dir_url( __FILE__ ) );
-define(
-	'SAHAJANAND_POST_TO_SPEECH_RUNTIME_ASSETS_URL',
-	'https://raw.githubusercontent.com/vanpariyar/wordpress-plugins/master/runtime-assets/'
-);
 
 if ( defined( 'WP_DEBUG' ) && WP_DEBUG && is_admin() ) {
 	register_shutdown_function(

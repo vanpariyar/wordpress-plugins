@@ -51,33 +51,18 @@ function configureOrtEnv( ort, wasmBase ) {
 }
 
 /**
- * Ensure runtime WASM is installed on the server (uploads) before browser TTS.
+ * Ensure bundled runtime WASM is available before browser TTS.
  *
  * @return {Promise<void>}
  */
 export async function ensureRuntimeWasm() {
-	const settings = getSettings();
-
-	if ( settings?.runtimeWasmInstalled ) {
+	if ( getSettings()?.runtimeWasmInstalled ) {
 		return;
 	}
 
-	const apiFetch = ( await import( '@wordpress/api-fetch' ) ).default;
-	const response = await apiFetch( {
-		path: '/sahajanand-post-to-speech/v1/prepare-runtime',
-		method: 'POST',
-	} );
-
-	window.sahajanandPostToSpeechSettings = {
-		...settings,
-		...response,
-	};
-
-	if ( ! window.sahajanandPostToSpeechSettings?.runtimeWasmInstalled ) {
-		throw new Error(
-			'Browser runtime files are not installed. Check your server can write to uploads and can reach the runtime-assets URL on GitHub.'
-		);
-	}
+	throw new Error(
+		'Browser runtime files are missing from the plugin. Reinstall Sahajanand Post to Speech or run npm run copy:vendor in the plugin directory.'
+	);
 }
 
 /**

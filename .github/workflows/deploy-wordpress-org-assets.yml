@@ -1,0 +1,64 @@
+name: Deploy WordPress.org Assets
+
+on:
+  push:
+    branches:
+      - master
+      - main
+    paths:
+      - 'plugins/*/.wporg_assets/**'
+  workflow_dispatch:
+    inputs:
+      plugin:
+        description: Plugin slug (folder name under plugins/)
+        required: true
+        default: sahajanand-post-to-speech
+
+permissions:
+  contents: read
+
+jobs:
+  deploy:
+    name: Deploy plugin assets to WordPress.org
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Resolve plugin slug
+        id: plugin
+        run: |
+          if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
+            SLUG="${{ github.event.inputs.plugin }}"
+          else
+            BEFORE="${{ github.event.before }}"
+            if [ "$BEFORE" = "0000000000000000000000000000000000000000" ]; then
+              CHANGED="$(git diff --name-only HEAD~1 HEAD)"
+            else
+              CHANGED="$(git diff --name-only "$BEFORE" "${{ github.sha }}")"
+            fi
+            SLUG="$(echo "$CHANGED" | grep '^plugins/.*/\.wporg_assets/' | sed -E 's|^plugins/([^/]+)/\.wporg_assets/.*|\1|' | sort -u | head -n 1)"
+          fi
+
+          if [ -z "$SLUG" ]; then
+            echo "Could not determine plugin slug from changed files." >&2
+            exit 1
+          fi
+
+          ASSETS_DIR="plugins/${SLUG}/.wporg_assets"
+          if [ ! -d "$ASSETS_DIR" ]; then
+            echo "Assets directory not found: $ASSETS_DIR" >&2
+            exit 1
+          fi
+
+          echo "slug=$SLUG" >> "$GITHUB_OUTPUT"
+          echo "assets_dir=$ASSETS_DIR" >> "$GITHUB_OUTPUT"
+
+      - name: WordPress.org assets deploy
+        uses: 10up/action-wordpress-plugin-asset-update@stable
+        env:
+          SVN_USERNAME: ${{ secrets.WORDPRESS_USERNAME }}
+          SVN_PASSWORD: ${{ secrets.WORDPRESS_PASSWORD }}
+          SLUG: ${{ steps.plugin.outputs.slug }}
+          ASSETS_DIR: ${{ steps.plugin.outputs.assets_dir }}
+          IGNORE_OTHER_FILES: true

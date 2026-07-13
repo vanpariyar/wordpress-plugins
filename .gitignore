@@ -8,3 +8,4 @@ composer.lock
 /tests/wordpress-stub/wp-admin/
 build_dir/
 *.zip
+.pressship-svn

@@ -41,8 +41,7 @@ This plugin may contact the following third-party services when generating audio
 
 **Browser mode (editor only)**
 
-* [Hugging Face](https://huggingface.co/) — downloads speech model files configured in settings (default models published by KittenML).
-* [GitHub](https://github.com/vanpariyar/wordpress-plugins/tree/master/runtime-assets) — on first browser generation, the plugin downloads ONNX Runtime and eSpeak-NG WASM files (~30 MB total) from the `runtime-assets` folder in this repository into your uploads directory so they are served locally afterward. JavaScript loaders ship inside the plugin zip.
+* [Hugging Face](https://huggingface.co/) — downloads speech model files configured in settings (default models published by KittenML). ONNX Runtime and eSpeak-NG WASM files ship inside the plugin package.
 
 **API mode (server-side, when configured)**
 
@@ -86,8 +85,9 @@ Yes. Browser mode needs no special server software. API mode only requires `wp_r
 == Screenshots ==
 
 1. Sahajanand Post To Speech block in the editor with post content preview
-2. Plugin settings — browser and API mode options
-3. Frontend audio player embedded in a post
+2. Block settings — browser and API mode options
+3. Plugin Settings page Preview
+4. Block settings — Custom Post Content preview
 
 == Changelog ==
 

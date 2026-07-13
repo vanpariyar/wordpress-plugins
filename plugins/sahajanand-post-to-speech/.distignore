@@ -30,6 +30,6 @@ webpack.config.js
 
 # Keep src/ in the WordPress.org zip — reviewers require unminified JS sources.
 
-# Large WASM binaries are downloaded into uploads on first browser TTS use (see class-runtime-assets.php).
-assets/vendor/espeak-ng/espeak-ng.wasm
-assets/vendor/onnxruntime-web/ort-wasm-simd-threaded.wasm
+# WordPress.org directory assets (deployed separately to SVN assets/)
+.wporg_assets
+.wporg_assets/**

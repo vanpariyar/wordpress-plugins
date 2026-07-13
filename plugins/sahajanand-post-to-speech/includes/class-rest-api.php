@@ -91,16 +91,6 @@ class Sahajanand_Post_To_Speech_REST_API {
 
 		register_rest_route(
 			'sahajanand-post-to-speech/v1',
-			'/prepare-runtime',
-			array(
-				'methods'             => WP_REST_Server::CREATABLE,
-				'callback'            => array( $this, 'prepare_runtime' ),
-				'permission_callback' => array( $this, 'can_edit_content' ),
-			)
-		);
-
-		register_rest_route(
-			'sahajanand-post-to-speech/v1',
 			'/usage',
 			array(
 				'methods'             => WP_REST_Server::READABLE,
@@ -152,25 +142,6 @@ class Sahajanand_Post_To_Speech_REST_API {
 	 * @return WP_REST_Response
 	 */
 	public function get_config() {
-		return rest_ensure_response( Sahajanand_Post_To_Speech_Config::get_editor_settings() );
-	}
-
-	/**
-	 * Download browser runtime WASM into uploads (first use).
-	 *
-	 * @return WP_REST_Response|WP_Error
-	 */
-	public function prepare_runtime() {
-		if ( Sahajanand_Post_To_Speech_Config::MODE_BROWSER !== Sahajanand_Post_To_Speech_Config::get_generation_mode() ) {
-			return rest_ensure_response( Sahajanand_Post_To_Speech_Config::get_editor_settings() );
-		}
-
-		$result = Sahajanand_Post_To_Speech_Runtime_Assets::install();
-
-		if ( is_wp_error( $result ) ) {
-			return $result;
-		}
-
 		return rest_ensure_response( Sahajanand_Post_To_Speech_Config::get_editor_settings() );
 	}
 

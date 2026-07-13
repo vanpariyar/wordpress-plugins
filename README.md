@@ -17,10 +17,8 @@ wordpress-plugins/
 │   └── kitten-tts-api/                    # Self-hosted KittenTTS API (pay-per-request)
 ├── plugins/                             # All WordPress plugins
 │   ├── creole-demo/                     # Shortcode demo plugin
-│   ├── creole-demo-lightbox/            # Lightbox demo plugin
 │   ├── sahajanand-post-to-speech/         # Sahajanand Post to Speech Gutenberg block
 │   └── like/                            # Gutenberg block plugin
-├── runtime-assets/                      # Browser WASM hosted for Sahajanand Post to Speech (not in plugin zip)
 ├── scripts/
 │   ├── bump-plugin-version.sh           # Version bump helper
 │   └── pressship.sh                     # WordPress.org publish helper (Pressship)
@@ -38,7 +36,6 @@ wordpress-plugins/
 | Plugin | Description |
 |--------|-------------|
 | [creole-demo](plugins/creole-demo/) | Display content using a shortcode |
-| [creole-demo-lightbox](plugins/creole-demo-lightbox/) | Lightbox demo plugin |
 | [sahajanand-post-to-speech](plugins/sahajanand-post-to-speech/) | Convert posts to audio with a Gutenberg block — browser WASM or API mode |
 
 ### KittenTTS API (Docker)
