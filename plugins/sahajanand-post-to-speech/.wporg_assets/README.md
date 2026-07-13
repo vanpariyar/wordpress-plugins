@@ -3,8 +3,13 @@
 These files deploy to the WordPress.org SVN `assets/` directory (not `trunk/`).
 They appear on https://wordpress.org/plugins/sahajanand-post-to-speech/
 
-Push changes here to run `.github/workflows/deploy-wordpress-org-assets.yml`,
-or run that workflow manually from GitHub Actions.
+Push changes here, then upload with Pressship:
+
+```bash
+bash scripts/pressship.sh assets sahajanand-post-to-speech
+```
+
+Or push to GitHub to run `.github/workflows/deploy-wordpress-org-assets.yml`.
 
 ## Required files
 
