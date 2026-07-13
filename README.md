@@ -207,7 +207,7 @@ bash scripts/deploy-wordpress-org.sh sahajanand-post-to-speech 1.0.1 --dry-run
 
 ### Screenshots and banners
 
-Add files under `plugins/<slug>/.wporg_assets/`. Pushing changes there runs `deploy-wordpress-org-assets.yml`, or upload manually:
+Add files under `plugins/<slug>/.wporg_assets/`. Include `blueprints/blueprint.json` for the WordPress.org **Live Preview** demo (Playground). Pushing changes there runs `deploy-wordpress-org-assets.yml`, or upload manually:
 
 ```bash
 ./scripts/pressship-assets.sh sahajanand-post-to-speech

@@ -109,21 +109,23 @@ main() {
 		exit 1
 	fi
 
-	local asset_count
-	asset_count="$(find "$assets_src" -maxdepth 1 -type f \( -iname '*.png' -o -iname '*.jpg' -o -iname '*.jpeg' -o -iname '*.gif' -o -iname '*.svg' \) | wc -l | tr -d ' ')"
-	if [ "$asset_count" -eq 0 ]; then
-		echo "No image assets found in $assets_src" >&2
+	local image_count blueprint_count
+	image_count="$(find "$assets_src" -maxdepth 1 -type f \( -iname '*.png' -o -iname '*.jpg' -o -iname '*.jpeg' -o -iname '*.gif' -o -iname '*.svg' \) | wc -l | tr -d ' ')"
+	blueprint_count="$(find "$assets_src/blueprints" -maxdepth 1 -type f -name '*.json' 2>/dev/null | wc -l | tr -d ' ')"
+	if [ "$image_count" -eq 0 ] && [ "$blueprint_count" -eq 0 ]; then
+		echo "No assets found in $assets_src (images or blueprints/blueprint.json)" >&2
 		exit 1
 	fi
 
 	local svn_dir="$MONOREPO_ROOT/.pressship-svn/$slug"
 	echo "Plugin: $slug"
-	echo "Assets: $assets_src ($asset_count files)"
+	echo "Assets: $assets_src ($image_count images, $blueprint_count blueprint files)"
 	echo "SVN:    https://plugins.svn.wordpress.org/$slug/"
 
 	if [ "$dry_run" = true ]; then
 		echo "Dry run — would upload:"
 		find "$assets_src" -maxdepth 1 -type f \( -iname '*.png' -o -iname '*.jpg' -o -iname '*.jpeg' -o -iname '*.gif' -o -iname '*.svg' \) -print
+		find "$assets_src/blueprints" -type f -name '*.json' -print 2>/dev/null || true
 		exit 0
 	fi
 
@@ -132,9 +134,6 @@ main() {
 	mkdir -p "$svn_dir/assets"
 	rsync -a --delete \
 		--exclude 'README.md' \
-		--include '*/' \
-		--include '*.png' --include '*.jpg' --include '*.jpeg' --include '*.gif' --include '*.svg' \
-		--exclude '*' \
 		"$assets_src/" "$svn_dir/assets/"
 
 	(
@@ -157,8 +156,12 @@ main() {
 			[ -f "$svg" ] || continue
 			svn propset svn:mime-type image/svg+xml "$svg" >/dev/null 2>&1 || true
 		done
+		for json in assets/blueprints/*.json; do
+			[ -f "$json" ] || continue
+			svn propset svn:mime-type text/plain "$json" >/dev/null 2>&1 || true
+		done
 
-		if ! svn status assets | grep -q .; then
+		if [ -z "$(svn status -q assets)" ]; then
 			echo "No asset changes to commit."
 			exit 0
 		fi
