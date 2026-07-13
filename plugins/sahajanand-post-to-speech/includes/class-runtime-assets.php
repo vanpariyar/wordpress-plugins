@@ -16,6 +16,36 @@ class Sahajanand_Post_To_Speech_Runtime_Assets {
 
 	const ESPEAK_WASM_FILE = 'espeak-ng.wasm';
 	const ONNX_WASM_FILE   = 'ort-wasm-simd-threaded.wasm';
+	const ONNX_MJS_FILE    = 'ort-wasm-simd-threaded.mjs';
+
+	/**
+	 * Runtime files required for browser WASM inference.
+	 *
+	 * @return string[]
+	 */
+	public static function get_required_files() {
+		return array(
+			self::ESPEAK_WASM_FILE,
+			self::ONNX_WASM_FILE,
+			self::ONNX_MJS_FILE,
+		);
+	}
+
+	/**
+	 * Whether all runtime files exist in a directory.
+	 *
+	 * @param string $directory Absolute directory path.
+	 * @return bool
+	 */
+	private static function directory_has_runtime_files( $directory ) {
+		foreach ( self::get_required_files() as $file ) {
+			if ( ! file_exists( trailingslashit( $directory ) . $file ) ) {
+				return false;
+			}
+		}
+
+		return true;
+	}
 
 	/**
 	 * Remote base URL for runtime WASM (documented external service).
@@ -71,17 +101,14 @@ class Sahajanand_Post_To_Speech_Runtime_Assets {
 	public static function get_wasm_base_url() {
 		$upload_dir = self::get_upload_dir();
 
-		if (
-			file_exists( $upload_dir . '/' . self::ESPEAK_WASM_FILE )
-			&& file_exists( $upload_dir . '/' . self::ONNX_WASM_FILE )
-		) {
+		if ( self::directory_has_runtime_files( $upload_dir ) ) {
 			return self::get_upload_url();
 		}
 
 		if ( defined( 'SAHAJANAND_POST_TO_SPEECH_PATH' ) && defined( 'SAHAJANAND_POST_TO_SPEECH_URL' ) ) {
-			$plugin_dir = SAHAJANAND_POST_TO_SPEECH_PATH . 'assets/vendor/onnxruntime-web/' . self::ONNX_WASM_FILE;
+			$plugin_vendor = SAHAJANAND_POST_TO_SPEECH_PATH . 'assets/vendor/onnxruntime-web';
 
-			if ( file_exists( $plugin_dir ) && file_exists( SAHAJANAND_POST_TO_SPEECH_PATH . 'assets/vendor/espeak-ng/' . self::ESPEAK_WASM_FILE ) ) {
+			if ( self::directory_has_runtime_files( $plugin_vendor ) && file_exists( SAHAJANAND_POST_TO_SPEECH_PATH . 'assets/vendor/espeak-ng/' . self::ESPEAK_WASM_FILE ) ) {
 				return SAHAJANAND_POST_TO_SPEECH_URL . 'assets/vendor/onnxruntime-web';
 			}
 		}
@@ -143,7 +170,7 @@ class Sahajanand_Post_To_Speech_Runtime_Assets {
 			);
 		}
 
-		$files = array( self::ESPEAK_WASM_FILE, self::ONNX_WASM_FILE );
+		$files = self::get_required_files();
 
 		foreach ( $files as $file ) {
 			$destination = $target_dir . '/' . $file;
@@ -189,6 +216,7 @@ class Sahajanand_Post_To_Speech_Runtime_Assets {
 		$sources = array(
 			self::ESPEAK_WASM_FILE => SAHAJANAND_POST_TO_SPEECH_PATH . 'assets/vendor/espeak-ng/' . self::ESPEAK_WASM_FILE,
 			self::ONNX_WASM_FILE   => SAHAJANAND_POST_TO_SPEECH_PATH . 'assets/vendor/onnxruntime-web/' . self::ONNX_WASM_FILE,
+			self::ONNX_MJS_FILE    => SAHAJANAND_POST_TO_SPEECH_PATH . 'assets/vendor/onnxruntime-web/' . self::ONNX_MJS_FILE,
 		);
 
 		if ( empty( $sources[ $file ] ) || ! file_exists( $sources[ $file ] ) ) {

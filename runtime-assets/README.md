@@ -9,7 +9,8 @@ These files are **not** included in the WordPress.org plugin zip (keeps the pack
 | File | Source package | Purpose |
 |------|----------------|---------|
 | `espeak-ng.wasm` | [espeak-ng](https://www.npmjs.com/package/espeak-ng) | Phonemization for browser TTS |
-| `ort-wasm-simd-threaded.wasm` | [onnxruntime-web@1.20.1](https://www.npmjs.com/package/onnxruntime-web) | ONNX Runtime Web inference |
+| `ort-wasm-simd-threaded.wasm` | [onnxruntime-web@1.20.1](https://www.npmjs.com/package/onnxruntime-web) | ONNX Runtime Web WASM binary |
+| `ort-wasm-simd-threaded.mjs` | [onnxruntime-web@1.20.1](https://www.npmjs.com/package/onnxruntime-web) | ONNX Runtime Web worker module |
 
 ## Regenerate
 

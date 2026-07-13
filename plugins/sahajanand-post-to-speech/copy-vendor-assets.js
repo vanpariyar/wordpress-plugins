@@ -26,13 +26,24 @@ copyFile(path.join(espeakSrcDir, 'espeak-ng.wasm'), path.join(runtimeAssetsDir, 
 const onnxSrcDir = path.join(pluginRoot, 'node_modules', 'onnxruntime-web', 'dist');
 const onnxDestDir = path.join(pluginRoot, 'assets', 'vendor', 'onnxruntime-web');
 
-const onnxFiles = ['ort.min.js', 'ort-wasm-simd-threaded.wasm'];
+const onnxFiles = [
+	'ort.min.js',
+	'ort-wasm-simd-threaded.mjs',
+	'ort-wasm-simd-threaded.wasm',
+];
 
 onnxFiles.forEach((file) => {
 	copyFile(path.join(onnxSrcDir, file), path.join(onnxDestDir, file));
 });
 
-copyFile(
-	path.join(onnxSrcDir, 'ort-wasm-simd-threaded.wasm'),
-	path.join(runtimeAssetsDir, 'ort-wasm-simd-threaded.wasm')
-);
+[
+	'espeak-ng.wasm',
+	'ort-wasm-simd-threaded.wasm',
+	'ort-wasm-simd-threaded.mjs',
+].forEach((file) => {
+	const src =
+		file === 'espeak-ng.wasm'
+			? path.join(espeakSrcDir, file)
+			: path.join(onnxSrcDir, file);
+	copyFile(src, path.join(runtimeAssetsDir, file));
+});
