@@ -12,7 +12,9 @@ Inspired by the [sahajananddigital/wordpress-plugins](https://github.com/sahajan
 wordpress-plugins/
 ├── .github/
 │   └── workflows/
-│       └── release-plugins.yml          # CI/CD version-based release workflow
+│       ├── release-plugins.yml          # GitHub Release on version bump
+│       ├── deploy-wordpress-org.yml     # WordPress.org SVN on plugin tag
+│       └── deploy-wordpress-org-assets.yml
 ├── docker/
 │   └── kitten-tts-api/                    # Self-hosted KittenTTS API (pay-per-request)
 ├── plugins/                             # All WordPress plugins
@@ -162,7 +164,48 @@ For publishing plugins to the [WordPress.org Plugin Directory](https://wordpress
 
 `publish` routes automatically: new plugins go through review (`submit`), approved plugins release to SVN (`release`). Use `--submit` or `--release` to be explicit.
 
-Pressship complements the GitHub Actions workflow above — GitHub releases zip files for direct download; Pressship handles the WordPress.org directory workflow.
+Pressship complements the GitHub Actions workflow above — GitHub releases zip files for direct download; Pressship handles manual WordPress.org directory workflow when needed.
+
+### Automated WordPress.org SVN Deploy
+
+Inspired by [wp-post-views](https://github.com/vanpariyar/wp-post-views), pushing a new plugin version tag also deploys configured plugins to [WordPress.org SVN](https://wordpress.org/plugins/) automatically.
+
+**Flow:**
+
+1. Bump the plugin version and push to `master` / `main`.
+2. `release-plugins.yml` detects the new version, builds assets, creates a GitHub tag like `sahajanand-post-to-speech/v1.0.0`, and publishes a GitHub Release zip.
+3. `deploy-wordpress-org.yml` runs on that tag, builds the plugin again, and commits to WordPress.org SVN (`trunk` + `tags/1.0.0`).
+
+**One-time GitHub secrets** (repo → Settings → Secrets and variables → Actions):
+
+| Secret | Value |
+|--------|--------|
+| `WORDPRESS_USERNAME` | Your WordPress.org username (e.g. `vanpariyar`) |
+| `WORDPRESS_PASSWORD` | A WordPress.org [application password](https://wordpress.org/support/article/application-passwords/) |
+
+**Enable a plugin for deploy** — add its folder slug to `.github/wporg-plugins.json`:
+
+```json
+{
+  "sahajanand-post-to-speech": {
+    "slug": "sahajanand-post-to-speech"
+  }
+}
+```
+
+Plugins not listed in that file still get GitHub Releases, but are skipped for WordPress.org deploy.
+
+**Screenshots / banners** — add files under `plugins/<slug>/.wporg_assets/` (same layout as [wp-post-views `.wporg_assets`](https://github.com/vanpariyar/wp-post-views/tree/master/.wporg_assets)). Pushing changes there runs `deploy-wordpress-org-assets.yml`.
+
+**Manual deploy (local or CI debugging):**
+
+```bash
+WORDPRESS_USERNAME=vanpariyar WORDPRESS_PASSWORD='xxxx xxxx xxxx xxxx' \
+  bash scripts/deploy-wordpress-org.sh sahajanand-post-to-speech 1.0.0
+
+# Preview without SVN commit
+bash scripts/deploy-wordpress-org.sh sahajanand-post-to-speech 1.0.0 --dry-run
+```
 
 ---
 
