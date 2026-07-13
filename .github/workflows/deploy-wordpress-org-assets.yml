@@ -24,6 +24,8 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
+        with:
+          fetch-depth: 2
 
       - name: Resolve plugin slug
         id: plugin
@@ -32,10 +34,12 @@ jobs:
             SLUG="${{ github.event.inputs.plugin }}"
           else
             BEFORE="${{ github.event.before }}"
-            if [ "$BEFORE" = "0000000000000000000000000000000000000000" ]; then
+            if [ -n "$BEFORE" ] && [ "$BEFORE" != "0000000000000000000000000000000000000000" ] && git cat-file -e "${BEFORE}^{commit}" 2>/dev/null; then
+              CHANGED="$(git diff --name-only "$BEFORE" "${{ github.sha }}")"
+            elif git rev-parse HEAD~1 >/dev/null 2>&1; then
               CHANGED="$(git diff --name-only HEAD~1 HEAD)"
             else
-              CHANGED="$(git diff --name-only "$BEFORE" "${{ github.sha }}")"
+              CHANGED="$(git show --pretty="" --name-only HEAD)"
             fi
             SLUG="$(echo "$CHANGED" | grep '^plugins/.*/\.wporg_assets/' | sed -E 's|^plugins/([^/]+)/\.wporg_assets/.*|\1|' | sort -u | head -n 1)"
           fi

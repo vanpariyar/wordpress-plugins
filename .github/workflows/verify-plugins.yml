@@ -1,0 +1,70 @@
+name: Verify Plugins
+
+on:
+  push:
+    branches:
+      - master
+      - main
+    paths:
+      - 'plugins/**'
+      - 'scripts/**'
+      - '.github/workflows/**'
+  pull_request:
+    paths:
+      - 'plugins/**'
+      - 'scripts/**'
+      - '.github/workflows/**'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  verify-sahajanand-post-to-speech:
+    name: Pack and validate sahajanand-post-to-speech
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 24
+
+      - name: Install jq
+        run: sudo apt-get update && sudo apt-get install -y jq
+
+      - name: Pack plugin zip
+        run: bash scripts/pack-plugin.sh sahajanand-post-to-speech /tmp
+
+      - name: Assert release zip includes compiled block assets
+        run: |
+          unzip -l /tmp/sahajanand-post-to-speech.zip | grep -q 'sahajanand-post-to-speech/build/block.json'
+          unzip -l /tmp/sahajanand-post-to-speech.zip | grep -q 'sahajanand-post-to-speech/build/index.js'
+          echo "Release zip contains build/ assets."
+
+      - name: Assert release zip excludes dev-only paths
+        run: |
+          if unzip -l /tmp/sahajanand-post-to-speech.zip | grep -q 'sahajanand-post-to-speech/node_modules/'; then
+            echo "node_modules should not be in the release zip" >&2
+            exit 1
+          fi
+          if unzip -l /tmp/sahajanand-post-to-speech.zip | grep -q 'sahajanand-post-to-speech/.wporg_assets/'; then
+            echo ".wporg_assets should not be in the release zip" >&2
+            exit 1
+          fi
+          echo "Release zip excludes dev-only paths."
+
+      - name: Dry-run WordPress.org deploy staging
+        run: |
+          VERSION="$(grep -i 'Version:' plugins/sahajanand-post-to-speech/sahajanand-post-to-speech.php | sed -E 's/.*Version:[[:space:]]*([0-9.]+).*/\1/' | tr -d '\r' | head -n 1)"
+          bash scripts/deploy-wordpress-org.sh sahajanand-post-to-speech "$VERSION" --dry-run
+
+      - name: Validate wporg asset filenames
+        run: |
+          ASSETS="plugins/sahajanand-post-to-speech/.wporg_assets"
+          test -f "$ASSETS/banner-772x250.png"
+          test -f "$ASSETS/icon-128x128.png"
+          test -f "$ASSETS/screenshot-1.png"
+          echo "WordPress.org asset files present."

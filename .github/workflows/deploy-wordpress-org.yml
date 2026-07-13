@@ -4,13 +4,23 @@ on:
   push:
     tags:
       - '*/v*'
+  workflow_dispatch:
+    inputs:
+      slug:
+        description: Plugin folder slug
+        required: true
+        default: sahajanand-post-to-speech
+      version:
+        description: Plugin version (must match plugin header)
+        required: true
+        default: 1.0.0
 
 permissions:
   contents: read
 
 jobs:
   deploy:
-    name: Deploy ${{ github.ref_name }} to WordPress.org
+    name: Deploy ${{ github.event_name == 'workflow_dispatch' && format('{0} {1}', github.event.inputs.slug, github.event.inputs.version) || github.ref_name }} to WordPress.org
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
@@ -19,13 +29,19 @@ jobs:
       - name: Parse plugin release tag
         id: release
         run: |
-          TAG="${GITHUB_REF#refs/tags/}"
-          SLUG="${TAG%%/v*}"
-          VERSION="${TAG#*/v}"
-          echo "tag=$TAG" >> "$GITHUB_OUTPUT"
+          if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
+            SLUG="${{ github.event.inputs.slug }}"
+            VERSION="${{ github.event.inputs.version }}"
+          else
+            TAG="${GITHUB_REF#refs/tags/}"
+            SLUG="${TAG%%/v*}"
+            VERSION="${TAG#*/v}"
+          fi
+
+          echo "tag=${SLUG}/v${VERSION}" >> "$GITHUB_OUTPUT"
           echo "slug=$SLUG" >> "$GITHUB_OUTPUT"
           echo "version=$VERSION" >> "$GITHUB_OUTPUT"
-          echo "Parsed tag: $TAG (plugin=$SLUG, version=$VERSION)"
+          echo "Parsed release: plugin=$SLUG, version=$VERSION"
 
       - name: Check WordPress.org deploy config
         id: config
@@ -47,11 +63,19 @@ jobs:
         if: steps.config.outputs.enabled == 'true'
         uses: actions/setup-node@v4
         with:
-          node-version: 20
+          node-version: 24
 
-      - name: Install Subversion
+      - name: Install dependencies
         if: steps.config.outputs.enabled == 'true'
-        run: sudo apt-get update && sudo apt-get install -y subversion rsync
+        run: sudo apt-get update && sudo apt-get install -y subversion rsync jq
+
+      - name: Dry-run deploy staging
+        if: steps.config.outputs.enabled == 'true'
+        run: |
+          bash scripts/deploy-wordpress-org.sh \
+            "${{ steps.release.outputs.slug }}" \
+            "${{ steps.release.outputs.version }}" \
+            --dry-run
 
       - name: Deploy plugin to WordPress.org SVN
         if: steps.config.outputs.enabled == 'true'

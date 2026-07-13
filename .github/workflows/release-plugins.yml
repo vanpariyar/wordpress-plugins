@@ -21,9 +21,9 @@ jobs:
           fetch-depth: 0
 
       - name: Setup Node.js Environment
-        uses: actions/setup-node@v3
+        uses: actions/setup-node@v4
         with:
-          node-version: 20
+          node-version: 24
 
       - name: Setup Git Configuration
         run: |
@@ -66,37 +66,41 @@ jobs:
 
             echo "New version detected! Plugin '$DIR' needs to be released at version $VERSION (Tag: $TAG)..."
 
-            if [ -f "$DIR_PATH/package.json" ]; then
-              echo "package.json detected in $DIR_PATH. Compiling assets..."
-              cd "$DIR_PATH"
-              npm ci --legacy-peer-deps || npm install --legacy-peer-deps
-              npm run build --if-present
-              cd "$MONOREPO_PATH"
-            fi
-
-            BUILD_DIR="build_dir/$DIR"
-            mkdir -p "$BUILD_DIR"
-            rsync -a --exclude 'node_modules' "$DIR_PATH/" "$BUILD_DIR/"
-
-            if [ -f "$DIR_PATH/.distignore" ]; then
-              echo "Applying custom exclusions from .distignore in $DIR..."
-              bash "$MONOREPO_PATH/scripts/apply-distignore.sh" "$BUILD_DIR" "$DIR_PATH/.distignore"
-            else
-              echo "Applying default developer file exclusions..."
-              rm -rf "$BUILD_DIR/tests"
-              rm -rf "$BUILD_DIR/node_modules"
-              rm -rf "$BUILD_DIR/phpunit.xml.dist"
-              rm -rf "$BUILD_DIR/composer.json"
-              rm -rf "$BUILD_DIR/composer.lock"
-              rm -rf "$BUILD_DIR/vendor"
-              rm -rf "$BUILD_DIR/.git"*
-            fi
-
             ZIP_NAME="$DIR-v$VERSION.zip"
-            cd build_dir
-            zip -r "../$ZIP_NAME" "$DIR"
-            cd ..
-            rm -rf "build_dir"
+
+            if [ -f "$DIR_PATH/package.json" ]; then
+              echo "Building and packing block plugin $DIR with scripts/pack-plugin.sh..."
+              bash "$MONOREPO_PATH/scripts/pack-plugin.sh" "$DIR" "$MONOREPO_PATH"
+              mv "$MONOREPO_PATH/$DIR.zip" "$ZIP_NAME"
+
+              if ! unzip -l "$ZIP_NAME" | grep -q "$DIR/build/block.json"; then
+                echo "Release zip for $DIR is missing build/block.json" >&2
+                exit 1
+              fi
+            else
+              BUILD_DIR="build_dir/$DIR"
+              mkdir -p "$BUILD_DIR"
+              rsync -a --exclude 'node_modules' "$DIR_PATH/" "$BUILD_DIR/"
+
+              if [ -f "$DIR_PATH/.distignore" ]; then
+                echo "Applying custom exclusions from .distignore in $DIR..."
+                bash "$MONOREPO_PATH/scripts/apply-distignore.sh" "$BUILD_DIR" "$DIR_PATH/.distignore"
+              else
+                echo "Applying default developer file exclusions..."
+                rm -rf "$BUILD_DIR/tests"
+                rm -rf "$BUILD_DIR/node_modules"
+                rm -rf "$BUILD_DIR/phpunit.xml.dist"
+                rm -rf "$BUILD_DIR/composer.json"
+                rm -rf "$BUILD_DIR/composer.lock"
+                rm -rf "$BUILD_DIR/vendor"
+                rm -rf "$BUILD_DIR/.git"*
+              fi
+
+              cd build_dir
+              zip -r "../$ZIP_NAME" "$DIR"
+              cd ..
+              rm -rf "build_dir"
+            fi
 
             git tag "$TAG"
             git push origin "$TAG"
