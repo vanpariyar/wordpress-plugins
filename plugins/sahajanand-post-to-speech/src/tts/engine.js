@@ -1,4 +1,4 @@
-import { loadOnnxRuntime, phonemizeWithEspeak } from './runtime-loader';
+import { loadOnnxRuntime, phonemizeWithEspeak, ensureRuntimeWasm } from './runtime-loader';
 import { phonemeStringToTokens, chunkText } from './text-cleaner';
 import { loadVoicesNpz } from './npz-loader';
 import { encodeWav } from './wav-encoder';
@@ -239,7 +239,12 @@ export class KittenTTSEngine {
 }
 
 export async function generateSpeechBlob( text, voice, speed, settings = {}, onProgress ) {
-	const engine = KittenTTSEngine.getInstance( settings );
+	await ensureRuntimeWasm();
+	const runtimeSettings = {
+		...settings,
+		...( window.sahajanandPostToSpeechSettings || {} ),
+	};
+	const engine = KittenTTSEngine.getInstance( runtimeSettings );
 	onProgress?.( 'Preparing speech model…' );
 	return engine.generate( text, voice, speed, onProgress );
 }

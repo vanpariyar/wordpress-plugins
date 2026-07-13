@@ -21,6 +21,18 @@ class Sahajanand_Post_To_Speech_Config_Test extends Sahajanand_Post_To_Speech_Te
 	 */
 	public function setUp(): void {
 		parent::setUp();
+		WP_Mock::userFunction(
+			'wp_upload_dir',
+			array(
+				'return' => function () {
+					return array(
+						'basedir' => sys_get_temp_dir() . '/sahajanand-post-to-speech-uploads',
+						'baseurl' => 'http://example.com/wp-content/uploads',
+					);
+				},
+			)
+		);
+		$this->load_include( 'class-runtime-assets.php' );
 		$this->load_include( 'class-config.php' );
 	}
 
@@ -115,6 +127,19 @@ class Sahajanand_Post_To_Speech_Config_Test extends Sahajanand_Post_To_Speech_Te
 	public function test_is_allowed_model_repo_rejects_unknown_repo() {
 		$this->assertFalse( Sahajanand_Post_To_Speech_Config::is_allowed_model_repo( 'Evil/unknown-model' ) );
 		$this->assertTrue( Sahajanand_Post_To_Speech_Config::is_allowed_model_repo( 'KittenML/kitten-tts-mini-0.8' ) );
+	}
+
+	/**
+	 * Vendor URLs should point at bundled plugin assets, not remote CDNs.
+	 */
+	public function test_vendor_urls_use_local_plugin_assets() {
+		$espeak_url = Sahajanand_Post_To_Speech_Config::get_espeak_module_url();
+		$onnx_url   = Sahajanand_Post_To_Speech_Config::get_onnx_script_url();
+
+		$this->assertStringContainsString( 'assets/vendor/espeak-ng/espeak-ng.js', $espeak_url );
+		$this->assertStringContainsString( 'assets/vendor/onnxruntime-web/ort.min.js', $onnx_url );
+		$this->assertStringNotContainsString( 'cdn.jsdelivr.net', $espeak_url );
+		$this->assertStringNotContainsString( 'cdn.jsdelivr.net', $onnx_url );
 	}
 
 	/**

@@ -11,21 +11,28 @@ function copyFile(src, dest) {
 	console.log(`Copied ${src} to ${dest}`);
 }
 
+const pluginRoot = __dirname;
+const monorepoRoot = path.join(pluginRoot, '..', '..');
+const runtimeAssetsDir = path.join(monorepoRoot, 'runtime-assets');
+
 // 1. copy espeak-ng assets
-const espeakSrcDir = path.join(__dirname, 'node_modules', 'espeak-ng', 'dist');
-const espeakDestDir = path.join(__dirname, 'assets', 'vendor', 'espeak-ng');
+const espeakSrcDir = path.join(pluginRoot, 'node_modules', 'espeak-ng', 'dist');
+const espeakDestDir = path.join(pluginRoot, 'assets', 'vendor', 'espeak-ng');
 copyFile(path.join(espeakSrcDir, 'espeak-ng.js'), path.join(espeakDestDir, 'espeak-ng.js'));
 copyFile(path.join(espeakSrcDir, 'espeak-ng.wasm'), path.join(espeakDestDir, 'espeak-ng.wasm'));
+copyFile(path.join(espeakSrcDir, 'espeak-ng.wasm'), path.join(runtimeAssetsDir, 'espeak-ng.wasm'));
 
 // 2. copy onnxruntime-web assets
-const onnxSrcDir = path.join(__dirname, 'node_modules', 'onnxruntime-web', 'dist');
-const onnxDestDir = path.join(__dirname, 'assets', 'vendor', 'onnxruntime-web');
+const onnxSrcDir = path.join(pluginRoot, 'node_modules', 'onnxruntime-web', 'dist');
+const onnxDestDir = path.join(pluginRoot, 'assets', 'vendor', 'onnxruntime-web');
 
-const onnxFiles = [
-	'ort.min.js',
-	'ort-wasm-simd-threaded.wasm'
-];
+const onnxFiles = ['ort.min.js', 'ort-wasm-simd-threaded.wasm'];
 
-onnxFiles.forEach(file => {
+onnxFiles.forEach((file) => {
 	copyFile(path.join(onnxSrcDir, file), path.join(onnxDestDir, file));
 });
+
+copyFile(
+	path.join(onnxSrcDir, 'ort-wasm-simd-threaded.wasm'),
+	path.join(runtimeAssetsDir, 'ort-wasm-simd-threaded.wasm')
+);

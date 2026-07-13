@@ -42,7 +42,7 @@ This plugin may contact the following third-party services when generating audio
 **Browser mode (editor only)**
 
 * [Hugging Face](https://huggingface.co/) — downloads speech model files configured in settings (default models published by KittenML).
-* [jsDelivr CDN](https://www.jsdelivr.com/) — loads ONNX Runtime Web and eSpeak-NG in the editor if they are not bundled locally.
+* [GitHub](https://github.com/vanpariyar/wordpress-plugins/tree/master/runtime-assets) — on first browser generation, the plugin downloads ONNX Runtime and eSpeak-NG WASM files (~30 MB total) from the `runtime-assets` folder in this repository into your uploads directory so they are served locally afterward. JavaScript loaders ship inside the plugin zip.
 
 **API mode (server-side, when configured)**
 

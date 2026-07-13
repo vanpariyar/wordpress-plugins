@@ -4,15 +4,22 @@
 
 import { normalizePhonemeString } from './text-cleaner';
 
-// 1.27.x ort.min.js pulls the JSEP worker (ort-wasm-simd-threaded.jsep.*), which has
-// been missing or 404 on jsDelivr. 1.20.1 is pinned for stable CDN + WASM-only inference.
+/**
+ * Editor settings object from PHP.
+ *
+ * @return {Record<string, unknown>|undefined}
+ */
+function getSettings() {
+	return window.sahajanandPostToSpeechSettings;
+}
+
 /**
  * Resolve the bundled eSpeak-NG module URL from editor settings.
  *
  * @return {string}
  */
 function getEspeakModuleUrl() {
-	const url = window.sahajanandPostToSpeechSettings?.espeakModuleUrl;
+	const url = getSettings()?.espeakModuleUrl;
 
 	if ( ! url ) {
 		throw new Error(
@@ -24,16 +31,53 @@ function getEspeakModuleUrl() {
 }
 
 /**
+ * Resolve the eSpeak-NG WASM URL (uploads, plugin vendor, or empty).
+ *
+ * @return {string}
+ */
+function getEspeakWasmUrl() {
+	return getSettings()?.espeakWasmUrl || '';
+}
+
+/**
  * Point ONNX Runtime Web at local WASM/worker files.
  *
  * @param {typeof import('onnxruntime-web')} ort ONNX Runtime global.
- * @param {string}                             localBase Local dist directory (no trailing slash).
+ * @param {string}                             wasmBase Local directory (no trailing slash).
  */
-function configureOrtEnv( ort, localBase ) {
-	// Workers resolve WASM relative to the page unless wasmPaths is set explicitly.
-	ort.env.wasm.wasmPaths = `${ localBase }/`;
-	// wp-admin does not send COOP/COEP, so disable threaded WASM (needs SharedArrayBuffer).
+function configureOrtEnv( ort, wasmBase ) {
+	ort.env.wasm.wasmPaths = `${ wasmBase }/`;
 	ort.env.wasm.numThreads = 1;
+}
+
+/**
+ * Ensure runtime WASM is installed on the server (uploads) before browser TTS.
+ *
+ * @return {Promise<void>}
+ */
+export async function ensureRuntimeWasm() {
+	const settings = getSettings();
+
+	if ( settings?.runtimeWasmInstalled ) {
+		return;
+	}
+
+	const apiFetch = ( await import( '@wordpress/api-fetch' ) ).default;
+	const response = await apiFetch( {
+		path: '/sahajanand-post-to-speech/v1/prepare-runtime',
+		method: 'POST',
+	} );
+
+	window.sahajanandPostToSpeechSettings = {
+		...settings,
+		...response,
+	};
+
+	if ( ! window.sahajanandPostToSpeechSettings?.runtimeWasmInstalled ) {
+		throw new Error(
+			'Browser runtime files are not installed. Check your server can write to uploads and can reach the runtime-assets URL on GitHub.'
+		);
+	}
 }
 
 /**
@@ -42,24 +86,26 @@ function configureOrtEnv( ort, localBase ) {
  * @return {Promise<typeof import('onnxruntime-web')>}
  */
 export async function loadOnnxRuntime() {
-	const localBase = window.sahajanandPostToSpeechSettings?.onnxRuntimeUrl;
+	const settings = getSettings();
+	const scriptUrl = settings?.onnxScriptUrl;
+	const wasmBase = settings?.onnxWasmUrl;
 
-	if ( ! localBase ) {
-		throw new Error( 'ONNX Runtime base path is not configured.' );
+	if ( ! scriptUrl || ! wasmBase ) {
+		throw new Error( 'ONNX Runtime is not configured.' );
 	}
 
 	if ( window.ort ) {
-		configureOrtEnv( window.ort, localBase );
+		configureOrtEnv( window.ort, wasmBase );
 		return window.ort;
 	}
 
-	await loadScript( `${ localBase }/ort.min.js` );
+	await loadScript( scriptUrl );
 
 	if ( ! window.ort ) {
 		throw new Error( 'ONNX Runtime Web failed to load.' );
 	}
 
-	configureOrtEnv( window.ort, localBase );
+	configureOrtEnv( window.ort, wasmBase );
 
 	return window.ort;
 }
@@ -72,7 +118,14 @@ export async function loadOnnxRuntime() {
  */
 export async function phonemizeWithEspeak( text ) {
 	const ESpeakNg = await loadESpeakNgFactory();
+	const wasmUrl = getEspeakWasmUrl();
 	const instance = await ESpeakNg( {
+		...( wasmUrl
+			? {
+					locateFile: ( file ) =>
+						file === 'espeak-ng.wasm' ? wasmUrl : file,
+			  }
+			: {} ),
 		arguments: [
 			'--phonout',
 			'phonemes_out',
@@ -105,7 +158,6 @@ async function loadESpeakNgFactory() {
 				return window.ESpeakNG;
 			}
 
-			// espeak-ng is an ES module (uses import.meta) — must use dynamic import, not <script>.
 			const module = await import(
 				/* webpackIgnore: true */
 				getEspeakModuleUrl()

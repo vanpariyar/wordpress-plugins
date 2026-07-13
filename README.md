@@ -20,6 +20,7 @@ wordpress-plugins/
 │   ├── creole-demo-lightbox/            # Lightbox demo plugin
 │   ├── sahajanand-post-to-speech/         # Sahajanand Post to Speech Gutenberg block
 │   └── like/                            # Gutenberg block plugin
+├── runtime-assets/                      # Browser WASM hosted for Sahajanand Post to Speech (not in plugin zip)
 ├── scripts/
 │   ├── bump-plugin-version.sh           # Version bump helper
 │   └── pressship.sh                     # WordPress.org publish helper (Pressship)

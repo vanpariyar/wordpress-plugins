@@ -82,16 +82,19 @@ class Sahajanand_Post_To_Speech_Config {
 		}
 
 		return array(
-			'generationMode'  => $mode,
-			'modelRepo'       => $model_repo,
-			'defaultVoice'    => get_option( 'sahajanand_post_to_speech_default_voice', 'Bella' ),
-			'defaultSpeed'    => 1.0,
-			'voices'          => self::get_voices(),
-			'voiceAliases'    => self::get_voice_aliases(),
-			'apiConfigured'   => self::MODE_API === $mode && self::is_api_configured(),
-			'pricePerRequest' => (float) get_option( 'sahajanand_post_to_speech_price_per_request', 0 ),
-			'espeakModuleUrl' => self::get_espeak_module_url(),
-			'onnxRuntimeUrl'  => self::get_onnx_runtime_url(),
+			'generationMode'       => $mode,
+			'modelRepo'            => $model_repo,
+			'defaultVoice'         => get_option( 'sahajanand_post_to_speech_default_voice', 'Bella' ),
+			'defaultSpeed'         => 1.0,
+			'voices'               => self::get_voices(),
+			'voiceAliases'         => self::get_voice_aliases(),
+			'apiConfigured'        => self::MODE_API === $mode && self::is_api_configured(),
+			'pricePerRequest'      => (float) get_option( 'sahajanand_post_to_speech_price_per_request', 0 ),
+			'espeakModuleUrl'      => self::get_espeak_module_url(),
+			'espeakWasmUrl'        => Sahajanand_Post_To_Speech_Runtime_Assets::get_espeak_wasm_url(),
+			'onnxScriptUrl'        => self::get_onnx_script_url(),
+			'onnxWasmUrl'          => Sahajanand_Post_To_Speech_Runtime_Assets::get_wasm_base_url(),
+			'runtimeWasmInstalled' => Sahajanand_Post_To_Speech_Runtime_Assets::is_installed(),
 		);
 	}
 
@@ -101,36 +104,32 @@ class Sahajanand_Post_To_Speech_Config {
 	 * @return string
 	 */
 	public static function get_espeak_module_url() {
-		$local_file = SAHAJANAND_POST_TO_SPEECH_PATH . 'assets/vendor/espeak-ng/espeak-ng.js';
-		$local_wasm = SAHAJANAND_POST_TO_SPEECH_PATH . 'assets/vendor/espeak-ng/espeak-ng.wasm';
-
-		if ( file_exists( $local_file ) && file_exists( $local_wasm ) ) {
-			if ( defined( 'SAHAJANAND_POST_TO_SPEECH_URL' ) ) {
-				return SAHAJANAND_POST_TO_SPEECH_URL . 'assets/vendor/espeak-ng/espeak-ng.js';
-			}
-			return '/wp-content/plugins/sahajanand-post-to-speech/assets/vendor/espeak-ng/espeak-ng.js';
+		if ( defined( 'SAHAJANAND_POST_TO_SPEECH_URL' ) ) {
+			return SAHAJANAND_POST_TO_SPEECH_URL . 'assets/vendor/espeak-ng/espeak-ng.js';
 		}
 
-		return 'https://cdn.jsdelivr.net/npm/espeak-ng@1.0.2/dist/espeak-ng.js';
+		return '/wp-content/plugins/sahajanand-post-to-speech/assets/vendor/espeak-ng/espeak-ng.js';
 	}
 
 	/**
-	 * URL to the bundled ONNX Runtime Web files (editor only).
+	 * URL to the bundled ONNX Runtime Web script (editor only).
 	 *
 	 * @return string
 	 */
-	public static function get_onnx_runtime_url() {
-		$local_file = SAHAJANAND_POST_TO_SPEECH_PATH . 'assets/vendor/onnxruntime-web/ort.min.js';
-		$local_wasm = SAHAJANAND_POST_TO_SPEECH_PATH . 'assets/vendor/onnxruntime-web/ort-wasm-simd-threaded.wasm';
-
-		if ( file_exists( $local_file ) && file_exists( $local_wasm ) ) {
-			if ( defined( 'SAHAJANAND_POST_TO_SPEECH_URL' ) ) {
-				return SAHAJANAND_POST_TO_SPEECH_URL . 'assets/vendor/onnxruntime-web';
-			}
-			return '/wp-content/plugins/sahajanand-post-to-speech/assets/vendor/onnxruntime-web';
+	public static function get_onnx_script_url() {
+		if ( defined( 'SAHAJANAND_POST_TO_SPEECH_URL' ) ) {
+			return SAHAJANAND_POST_TO_SPEECH_URL . 'assets/vendor/onnxruntime-web/ort.min.js';
 		}
 
-		return 'https://cdn.jsdelivr.net/npm/onnxruntime-web@1.20.1/dist';
+		return '/wp-content/plugins/sahajanand-post-to-speech/assets/vendor/onnxruntime-web/ort.min.js';
+	}
+
+	/**
+	 * @deprecated 1.0.0 Use get_onnx_script_url() and Sahajanand_Post_To_Speech_Runtime_Assets::get_wasm_base_url().
+	 * @return string
+	 */
+	public static function get_onnx_runtime_url() {
+		return self::get_onnx_script_url();
 	}
 
 	/**
