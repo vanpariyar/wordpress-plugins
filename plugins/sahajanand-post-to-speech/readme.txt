@@ -34,6 +34,12 @@ Sahajanand Post to Speech helps you convert WordPress posts into listenable audi
 
 [youtube https://youtu.be/V0eXbLQloZM]
 
+### Contribute
+
+Development happens on GitHub. Bug reports, feature requests, and pull requests are welcome:
+
+https://github.com/vanpariyar/wordpress-plugins
+
 == Credits ==
 
 This plugin uses the open-source [KittenTTS](https://github.com/KittenML/KittenTTS) speech synthesis models from [KittenML](https://github.com/KittenML) and bundles [eSpeak-NG](https://github.com/espeak-ng/espeak-ng) (GPL-3.0-or-later) for browser phonemization.
