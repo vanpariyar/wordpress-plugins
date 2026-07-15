@@ -125,6 +125,8 @@ class Sahajanand_Post_To_Speech_Config {
 	}
 
 	/**
+	 * URL to the bundled ONNX Runtime Web script (editor only).
+	 *
 	 * @deprecated 1.0.0 Use get_onnx_script_url() and Sahajanand_Post_To_Speech_Runtime_Assets::get_wasm_base_url().
 	 * @return string
 	 */

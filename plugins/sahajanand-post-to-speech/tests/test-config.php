@@ -70,9 +70,9 @@ class Sahajanand_Post_To_Speech_Config_Test extends Sahajanand_Post_To_Speech_Te
 			->andReturnUsing(
 				function ( $key, $default = false ) {
 					$options = array(
-						'sahajanand_post_to_speech_generation_mode'   => Sahajanand_Post_To_Speech_Config::MODE_BROWSER,
-						'sahajanand_post_to_speech_model'             => 'KittenML/kitten-tts-nano-0.8-int8',
-						'sahajanand_post_to_speech_default_voice'     => 'Jasper',
+						'sahajanand_post_to_speech_generation_mode' => Sahajanand_Post_To_Speech_Config::MODE_BROWSER,
+						'sahajanand_post_to_speech_model' => 'KittenML/kitten-tts-nano-0.8-int8',
+						'sahajanand_post_to_speech_default_voice' => 'Jasper',
 						'sahajanand_post_to_speech_price_per_request' => 0,
 					);
 

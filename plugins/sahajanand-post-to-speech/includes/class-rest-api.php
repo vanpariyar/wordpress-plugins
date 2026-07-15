@@ -358,8 +358,9 @@ class Sahajanand_Post_To_Speech_REST_API {
 		$too_large_code = 'sahajanand_post_to_speech_too_large';
 
 		for ( $offset = 0; $offset < $length; $offset += $base64_chunk ) {
-			$slice   = substr( $audio, $offset, $base64_chunk );
-			$binary  = base64_decode( $slice, true );
+			$slice = substr( $audio, $offset, $base64_chunk );
+			// phpcs:ignore WordPress.PHP.DiscouragedPHPFunctions.obfuscation_base64_decode -- Decodes a browser-generated WAV payload, not obfuscated logic.
+			$binary = base64_decode( $slice, true );
 
 			if ( false === $binary || '' === $binary ) {
 				fclose( $handle );

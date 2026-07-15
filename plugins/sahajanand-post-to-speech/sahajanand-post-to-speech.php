@@ -3,7 +3,7 @@
  * Plugin Name:       Sahajanand Post to Speech
  * Plugin URI:        https://wordpress.org/plugins/sahajanand-post-to-speech/
  * Description:       Convert post content or custom text to speech with Sahajanand Post to Speech and embed an audio player using a Gutenberg block.
- * Version:           1.0.1
+ * Version:           1.0.2
  * Requires at least: 6.0
  * Requires PHP:      7.4
  * Author:            Ronak Vanpariya
@@ -19,7 +19,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-define( 'SAHAJANAND_POST_TO_SPEECH_VERSION', '1.0.1' );
+define( 'SAHAJANAND_POST_TO_SPEECH_VERSION', '1.0.2' );
 define( 'SAHAJANAND_POST_TO_SPEECH_PATH', plugin_dir_path( __FILE__ ) );
 define( 'SAHAJANAND_POST_TO_SPEECH_URL', plugin_dir_url( __FILE__ ) );
 
@@ -47,44 +47,50 @@ require_once SAHAJANAND_POST_TO_SPEECH_PATH . 'includes/class-settings.php';
 require_once SAHAJANAND_POST_TO_SPEECH_PATH . 'includes/class-rest-api.php';
 require_once SAHAJANAND_POST_TO_SPEECH_PATH . 'includes/class-editor-assets.php';
 
-/**
- * Register the Gutenberg block.
- */
-function sahajanand_post_to_speech_register_block() {
-	$block_dir = SAHAJANAND_POST_TO_SPEECH_PATH . 'build';
+if ( ! function_exists( 'sahajanand_post_to_speech_register_block' ) ) {
+	/**
+	 * Register the Gutenberg block.
+	 */
+	function sahajanand_post_to_speech_register_block() {
+		$block_dir = SAHAJANAND_POST_TO_SPEECH_PATH . 'build';
 
-	if ( ! file_exists( $block_dir . '/block.json' ) ) {
-		add_action( 'admin_notices', 'sahajanand_post_to_speech_missing_build_notice' );
-		return;
+		if ( ! file_exists( $block_dir . '/block.json' ) ) {
+			add_action( 'admin_notices', 'sahajanand_post_to_speech_missing_build_notice' );
+			return;
+		}
+
+		register_block_type( $block_dir );
 	}
-
-	register_block_type( $block_dir );
 }
 add_action( 'init', 'sahajanand_post_to_speech_register_block' );
 
-/**
- * Warn administrators when compiled block assets are missing.
- */
-function sahajanand_post_to_speech_missing_build_notice() {
-	if ( ! current_user_can( 'activate_plugins' ) ) {
-		return;
-	}
+if ( ! function_exists( 'sahajanand_post_to_speech_missing_build_notice' ) ) {
+	/**
+	 * Warn administrators when compiled block assets are missing.
+	 */
+	function sahajanand_post_to_speech_missing_build_notice() {
+		if ( ! current_user_can( 'activate_plugins' ) ) {
+			return;
+		}
 
-	printf(
-		'<div class="notice notice-error"><p>%s</p></div>',
-		esc_html__(
-			'Sahajanand Post to Speech is missing compiled block assets in build/. Reinstall the plugin from a package created with scripts/pack-plugin.sh.',
-			'sahajanand-post-to-speech'
-		)
-	);
+		printf(
+			'<div class="notice notice-error"><p>%s</p></div>',
+			esc_html__(
+				'Sahajanand Post to Speech is missing compiled block assets in build/. Reinstall the plugin from a package created with scripts/pack-plugin.sh.',
+				'sahajanand-post-to-speech'
+			)
+		);
+	}
 }
 
-/**
- * Bootstrap plugin services.
- */
-function sahajanand_post_to_speech_bootstrap() {
-	new Sahajanand_Post_To_Speech_Settings();
-	new Sahajanand_Post_To_Speech_REST_API();
-	new Sahajanand_Post_To_Speech_Editor_Assets();
+if ( ! function_exists( 'sahajanand_post_to_speech_bootstrap' ) ) {
+	/**
+	 * Bootstrap plugin services.
+	 */
+	function sahajanand_post_to_speech_bootstrap() {
+		new Sahajanand_Post_To_Speech_Settings();
+		new Sahajanand_Post_To_Speech_REST_API();
+		new Sahajanand_Post_To_Speech_Editor_Assets();
+	}
 }
 add_action( 'plugins_loaded', 'sahajanand_post_to_speech_bootstrap' );
