@@ -1,15 +1,15 @@
 === Sahajanand Post to Speech ===
-Contributors: vanpariyar
+Contributors: vanpariyar, alkesh7
 Donate link: https://vanpariyar.github.io
 Tags: audio, text-to-speech, gutenberg, speech, blog
 Requires at least: 6.0
 Tested up to: 7.0
 Requires PHP: 7.4
-Stable tag: 1.0.1
+Stable tag: 1.0.2
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
-Turn blog posts into audio with the Sahajanand Post To Speech Gutenberg block.
+Convert posts into natural-sounding audio with a Gutenberg block — generate speech in the browser or via your own TTS API, no subscription needed.
 
 == Description ==
 
@@ -101,6 +101,11 @@ Yes. Browser mode needs no special server software. API mode only requires `wp_r
 4. Block settings — Custom Post Content preview
 
 == Changelog ==
+
+= 1.0.2 =
+* Confirmed compatibility with WordPress 7.0.
+* Hardened the audio upload REST handler and tidied code comments for readability (no functional changes).
+* Coding-standards cleanup (WordPress-Extra/PHPCS) across plugin files.
 
 = 1.0.0 =
 * Initial release of **Sahajanand Post to Speech**.

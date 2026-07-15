@@ -149,7 +149,7 @@ class Sahajanand_Post_To_Speech_Media {
 	 */
 	private function validate_upload_size( $byte_length ) {
 		if ( ! class_exists( 'Sahajanand_Post_To_Speech_Config' ) ) {
-			require_once dirname( __FILE__ ) . '/class-config.php';
+			require_once __DIR__ . '/class-config.php';
 		}
 
 		$max_bytes = Sahajanand_Post_To_Speech_Config::get_max_upload_bytes();

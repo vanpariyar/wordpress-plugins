@@ -56,10 +56,10 @@ class Sahajanand_Post_To_Speech_API_Client {
 			array(
 				'timeout' => 120,
 				'headers' => array(
-					'Content-Type'  => 'application/json',
-					'X-API-Key'     => $api_key,
-					'Accept'        => 'audio/wav',
-					'User-Agent'    => 'Sahajanand-Post-To-Speech-WordPress/' . SAHAJANAND_POST_TO_SPEECH_VERSION,
+					'Content-Type' => 'application/json',
+					'X-API-Key'    => $api_key,
+					'Accept'       => 'audio/wav',
+					'User-Agent'   => 'Sahajanand-Post-To-Speech-WordPress/' . SAHAJANAND_POST_TO_SPEECH_VERSION,
 				),
 				'body'    => $body,
 			)
