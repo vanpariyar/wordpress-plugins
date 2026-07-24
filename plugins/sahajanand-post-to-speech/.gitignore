@@ -1,2 +1,6 @@
 node_modules/
 local-fatal.log
+artifacts/
+test-results/
+playwright-report/
+blob-report/
