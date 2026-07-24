@@ -23,10 +23,10 @@ class Sahajanand_Post_To_Speech_API_Client {
 	 * @return string|WP_Error Raw WAV bytes.
 	 */
 	public function generate( $text, $voice, $speed ) {
-		$api_url = trailingslashit( get_option( 'sahajanand_post_to_speech_api_url', '' ) );
-		$api_key = get_option( 'sahajanand_post_to_speech_api_key', '' );
+		$api_url = (string) get_option( 'sahajanand_post_to_speech_api_url', '' );
+		$api_key = (string) get_option( 'sahajanand_post_to_speech_api_key', '' );
 
-		if ( empty( $api_url ) ) {
+		if ( '' === $api_url ) {
 			return new WP_Error(
 				'sahajanand_post_to_speech_missing_api_url',
 				__( 'KittenTTS API URL is not configured.', 'sahajanand-post-to-speech' ),
@@ -34,7 +34,7 @@ class Sahajanand_Post_To_Speech_API_Client {
 			);
 		}
 
-		if ( empty( $api_key ) ) {
+		if ( '' === $api_key ) {
 			return new WP_Error(
 				'sahajanand_post_to_speech_missing_api_key',
 				__( 'KittenTTS API key is not configured.', 'sahajanand-post-to-speech' ),
@@ -42,7 +42,7 @@ class Sahajanand_Post_To_Speech_API_Client {
 			);
 		}
 
-		$endpoint = $api_url . 'v1/generate';
+		$endpoint = trailingslashit( $api_url ) . 'v1/generate';
 		$body     = wp_json_encode(
 			array(
 				'text'  => $text,
@@ -109,10 +109,10 @@ class Sahajanand_Post_To_Speech_API_Client {
 	 * @return array|WP_Error
 	 */
 	public function get_usage() {
-		$api_url = trailingslashit( get_option( 'sahajanand_post_to_speech_api_url', '' ) );
-		$api_key = get_option( 'sahajanand_post_to_speech_api_key', '' );
+		$api_url = (string) get_option( 'sahajanand_post_to_speech_api_url', '' );
+		$api_key = (string) get_option( 'sahajanand_post_to_speech_api_key', '' );
 
-		if ( empty( $api_url ) || empty( $api_key ) ) {
+		if ( '' === $api_url || '' === $api_key ) {
 			return new WP_Error(
 				'sahajanand_post_to_speech_api_not_configured',
 				__( 'KittenTTS API is not configured.', 'sahajanand-post-to-speech' )
@@ -120,7 +120,7 @@ class Sahajanand_Post_To_Speech_API_Client {
 		}
 
 		$response = wp_remote_get(
-			$api_url . 'v1/usage',
+			trailingslashit( $api_url ) . 'v1/usage',
 			array(
 				'timeout' => 30,
 				'headers' => array(

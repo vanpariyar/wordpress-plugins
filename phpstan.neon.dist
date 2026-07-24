@@ -1,0 +1,20 @@
+includes:
+	- vendor/szepeviktor/phpstan-wordpress/extension.neon
+
+parameters:
+	level: 5
+	paths:
+		- plugins/sahajanand-post-to-speech/sahajanand-post-to-speech.php
+		- plugins/sahajanand-post-to-speech/uninstall.php
+		- plugins/sahajanand-post-to-speech/includes
+	excludePaths:
+		analyseAndScan:
+			- plugins/sahajanand-post-to-speech/build
+			- plugins/sahajanand-post-to-speech/assets/vendor
+			- plugins/sahajanand-post-to-speech/node_modules
+			- plugins/sahajanand-post-to-speech/tests
+	bootstrapFiles:
+		- tests/phpstan-bootstrap.php
+	# Plugin minimum PHP; WordPress stubs cover Core APIs used by the plugin.
+	phpVersion: 70400
+	reportUnmatchedIgnoredErrors: true

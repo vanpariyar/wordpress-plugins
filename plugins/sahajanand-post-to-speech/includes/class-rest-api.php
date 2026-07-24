@@ -399,7 +399,8 @@ class Sahajanand_Post_To_Speech_REST_API {
 		fclose( $handle );
 		// phpcs:enable WordPress.WP.AlternativeFunctions.file_system_operations_fopen, WordPress.WP.AlternativeFunctions.file_system_operations_fclose
 
-		if ( 0 === $decoded_size ) {
+		// Empty payloads are rejected in the decode loop; this guards unexpected zero-byte writes.
+		if ( $decoded_size < 1 ) { // @phpstan-ignore smaller.alwaysFalse
 			wp_delete_file( $tmp_file );
 
 			return new WP_Error(

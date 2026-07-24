@@ -108,7 +108,7 @@ class Sahajanand_Post_To_Speech_Media {
 
 		$result = $this->sideload_file_array( $file, $post_id );
 
-		if ( is_wp_error( $result ) && file_exists( $tmp_path ) ) {
+		if ( is_wp_error( $result ) ) {
 			wp_delete_file( $tmp_path );
 		}
 
