@@ -90,12 +90,22 @@ class Sahajanand_Post_To_Speech_Config {
 			'voiceAliases'         => self::get_voice_aliases(),
 			'apiConfigured'        => self::MODE_API === $mode && self::is_api_configured(),
 			'pricePerRequest'      => (float) get_option( 'sahajanand_post_to_speech_price_per_request', 0 ),
+			'kittenTtsScriptUrl'   => self::get_kittentts_script_url(),
 			'espeakModuleUrl'      => self::get_espeak_module_url(),
 			'espeakWasmUrl'        => Sahajanand_Post_To_Speech_Runtime_Assets::get_espeak_wasm_url(),
 			'onnxScriptUrl'        => self::get_onnx_script_url(),
 			'onnxWasmUrl'          => Sahajanand_Post_To_Speech_Runtime_Assets::get_wasm_base_url(),
 			'runtimeWasmInstalled' => Sahajanand_Post_To_Speech_Runtime_Assets::is_installed(),
 		);
+	}
+
+	/**
+	 * URL to the bundled KittenTTS Web SDK script (editor only).
+	 *
+	 * @return string
+	 */
+	public static function get_kittentts_script_url() {
+		return Sahajanand_Post_To_Speech_Runtime_Assets::get_kittentts_url();
 	}
 
 	/**

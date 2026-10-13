@@ -1,102 +1,72 @@
-import { loadOnnxRuntime, phonemizeWithEspeak, ensureRuntimeWasm } from './runtime-loader';
-import { phonemeStringToTokens, chunkText } from './text-cleaner';
-import { loadVoicesNpz } from './npz-loader';
-import { encodeWav } from './wav-encoder';
-
-const SAMPLE_RATE = 24000;
-const DEFAULT_CONFIG = {
-	voice_aliases: {
-		Bella: 'expr-voice-2-f',
-		Jasper: 'expr-voice-2-m',
-		Luna: 'expr-voice-3-f',
-		Bruno: 'expr-voice-3-m',
-		Rosie: 'expr-voice-4-f',
-		Hugo: 'expr-voice-4-m',
-		Kiki: 'expr-voice-5-f',
-		Leo: 'expr-voice-5-m',
-	},
-	speed_priors: {
-		'expr-voice-2-f': 0.8,
-		'expr-voice-2-m': 0.8,
-		'expr-voice-3-m': 0.8,
-		'expr-voice-3-f': 0.8,
-		'expr-voice-4-m': 0.9,
-		'expr-voice-4-f': 0.8,
-		'expr-voice-5-m': 0.8,
-		'expr-voice-5-f': 0.8,
-	},
-};
+import { loadKittenTTSWeb, ensureRuntimeWasm } from './runtime-loader';
 
 let engineInstance = null;
 
-function resolveVoiceId( voice, config ) {
-	const aliases = config.voice_aliases || DEFAULT_CONFIG.voice_aliases;
-	return aliases[ voice ] || voice;
-}
-
-const BROWSER_MODEL_DEFAULT = 'KittenML/kitten-tts-nano-0.8-fp32';
-const BROWSER_MODEL_FALLBACKS = {
-	'KittenML/kitten-tts-nano-0.8-int8': 'KittenML/kitten-tts-nano-0.8-fp32',
-};
-
-function resolveBrowserModelRepo( modelRepo ) {
-	if ( BROWSER_MODEL_FALLBACKS[ modelRepo ] ) {
-		return BROWSER_MODEL_FALLBACKS[ modelRepo ];
+/**
+ * Map repository or friendly name to KittenTTS model identifier.
+ *
+ * @param {string} [modelSetting] Model repo or identifier.
+ * @return {'nano-int8'|'nano'|'micro'|'mini'} Supported KittenTTS model ID.
+ */
+export function normalizeModelId( modelSetting = '' ) {
+	if ( ! modelSetting ) {
+		return 'nano-int8';
 	}
 
-	return modelRepo || BROWSER_MODEL_DEFAULT;
-}
-
-function getStyleTensor( ort, voices, voiceId, text ) {
-	const voiceTensor = voices[ voiceId ];
-
-	if ( ! voiceTensor ) {
-		throw new Error( `Voice "${ voiceId }" is not available in the model.` );
+	if (
+		modelSetting.includes( 'nano-0.8-int8' ) ||
+		modelSetting === 'nano-int8'
+	) {
+		return 'nano-int8';
 	}
 
-	const shape = voiceTensor.shape || [];
-	const rows = shape[ 0 ] || 1;
-	const cols = shape[ 1 ] || voiceTensor.data.length;
-	const refId = Math.min( text.length, Math.max( rows - 1, 0 ) );
-	const start = refId * cols;
-	const end = start + cols;
-	const styleData = new Float32Array(
-		voiceTensor.data.subarray
-			? voiceTensor.data.subarray( start, end )
-			: voiceTensor.data.slice( start, end )
-	);
-
-	return new ort.Tensor( 'float32', styleData, [ 1, cols ] );
-}
-
-async function fetchArrayBuffer( url ) {
-	const response = await fetch( url );
-
-	if ( ! response.ok ) {
-		throw new Error( `Failed to fetch ${ url } (${ response.status })` );
+	if ( modelSetting.includes( 'nano' ) || modelSetting === 'nano' ) {
+		return 'nano';
 	}
 
-	return response.arrayBuffer();
+	if ( modelSetting.includes( 'micro' ) || modelSetting === 'micro' ) {
+		return 'micro';
+	}
+
+	if ( modelSetting.includes( 'mini' ) || modelSetting === 'mini' ) {
+		return 'mini';
+	}
+
+	return 'nano-int8';
+}
+
+/**
+ * Map voice name to lowercase KittenTTS voice identifier.
+ *
+ * @param {string} [voice] Friendly or internal voice name.
+ * @return {string} Lowercase voice identifier.
+ */
+export function normalizeVoiceId( voice = 'bella' ) {
+	const voiceMap = {
+		bella: 'bella',
+		jasper: 'jasper',
+		luna: 'luna',
+		bruno: 'bruno',
+		rosie: 'rosie',
+		hugo: 'hugo',
+		kiki: 'kiki',
+		leo: 'leo',
+	};
+
+	const lower = String( voice ).trim().toLowerCase();
+	return voiceMap[ lower ] || 'bella';
 }
 
 export class KittenTTSEngine {
 	constructor( settings = {} ) {
 		this.settings = settings;
-		this.config = null;
-		this.session = null;
-		this.voices = null;
-		this.ort = null;
-		this.loadingPromise = null;
+		this.tts = null;
+		this.activeModel = null;
+		this.initPromise = null;
 	}
 
 	static getInstance( settings = {} ) {
-		const resolvedModel = resolveBrowserModelRepo( settings.modelRepo );
-
-		if (
-			! engineInstance ||
-			resolveBrowserModelRepo( engineInstance.settings.modelRepo ) !==
-				resolvedModel
-		) {
+		if ( ! engineInstance ) {
 			engineInstance = new KittenTTSEngine( settings );
 		} else {
 			engineInstance.settings = {
@@ -108,143 +78,142 @@ export class KittenTTSEngine {
 		return engineInstance;
 	}
 
-	async load( onProgress ) {
-		if ( this.session && this.voices && this.config && this.ort ) {
-			return;
+	/**
+	 * Initialize or reuse the KittenTTS instance.
+	 *
+	 * @param {string}   [modelRepo]  Target model name or repo.
+	 * @param {Function} [onProgress] Progress callback.
+	 * @return {Promise<object>} Active KittenTTS session.
+	 */
+	async getTTS( modelRepo, onProgress ) {
+		const targetModel = normalizeModelId(
+			modelRepo || this.settings.modelRepo
+		);
+
+		if ( this.tts && this.activeModel === targetModel ) {
+			return this.tts;
 		}
 
-		if ( this.loadingPromise ) {
-			return this.loadingPromise;
+		if ( this.initPromise ) {
+			return this.initPromise;
 		}
 
-		this.loadingPromise = this.#loadInternal( onProgress );
+		this.initPromise = ( async () => {
+			if ( this.tts ) {
+				await this.tts.dispose().catch( () => {} );
+				this.tts = null;
+			}
+
+			const { KittenTTS } = await loadKittenTTSWeb();
+
+			onProgress?.( 'Initializing KittenTTS Web SDK…' );
+
+			const wasmBase = this.settings.onnxWasmUrl || undefined;
+
+			this.tts = await KittenTTS.create(
+				{
+					model: targetModel,
+					analytics: false,
+					...( wasmBase ? { ortWasmPath: wasmBase } : {} ),
+				},
+				( progress, info ) => {
+					if ( ! onProgress ) {
+						return;
+					}
+
+					const pct = Math.round( ( progress || 0 ) * 100 );
+
+					if ( info?.stage === 'downloading' ) {
+						const asset = info.asset ? ` (${ info.asset })` : '';
+						onProgress( `Downloading model${ asset }… ${ pct }%` );
+					} else if ( info?.stage === 'checking-cache' ) {
+						onProgress( 'Checking cached model…' );
+					} else if ( info?.stage === 'cached' ) {
+						onProgress( 'Using cached model…' );
+					} else if ( info?.stage === 'complete' ) {
+						onProgress( 'Model ready…' );
+					} else {
+						onProgress( `Preparing speech model… ${ pct }%` );
+					}
+				}
+			);
+
+			this.activeModel = targetModel;
+			return this.tts;
+		} )();
 
 		try {
-			await this.loadingPromise;
+			return await this.initPromise;
 		} finally {
-			this.loadingPromise = null;
+			this.initPromise = null;
 		}
 	}
 
-	async #loadInternal( onProgress ) {
-		onProgress?.( 'Loading ONNX runtime…' );
-
-		this.ort = await loadOnnxRuntime();
-
-		const modelRepo = resolveBrowserModelRepo( this.settings.modelRepo );
-		const hfBase = `https://huggingface.co/${ modelRepo }/resolve/main`;
-
-		onProgress?.( 'Downloading model config…' );
-
-		const configResponse = await fetch( `${ hfBase }/config.json` );
-
-		if ( ! configResponse.ok ) {
-			throw new Error( 'Could not load KittenTTS model config.' );
-		}
-
-		this.config = await configResponse.json();
-
-		onProgress?.( 'Downloading voice data…' );
-
-		const voicesBuffer = await fetchArrayBuffer(
-			`${ hfBase }/${ this.config.voices }`
-		);
-		this.voices = await loadVoicesNpz( voicesBuffer );
-
-		onProgress?.( 'Loading ONNX model…' );
-
-		this.session = await this.ort.InferenceSession.create(
-			`${ hfBase }/${ this.config.model_file }`,
-			{
-				executionProviders: [ 'wasm' ],
-			}
-		);
-	}
-
+	/**
+	 * Generate speech audio using KittenTTS Web SDK.
+	 *
+	 * @param {string}   text         Input text.
+	 * @param {string}   [voice]      Voice name.
+	 * @param {number}   [speed]      Speech speed.
+	 * @param {Function} [onProgress] Progress callback.
+	 * @return {Promise<Blob>} WAV audio blob.
+	 */
 	async generate( text, voice = 'Bella', speed = 1, onProgress ) {
-		await this.load( onProgress );
-
-		const chunks = chunkText( text );
-		const chunkAudio = [];
-
-		for ( const chunk of chunks ) {
-			chunkAudio.push(
-				await this.#generateChunk( chunk, voice, speed, onProgress )
-			);
-		}
-
-		const totalLength = chunkAudio.reduce(
-			( sum, audio ) => sum + audio.length,
-			0
-		);
-		const merged = new Float32Array( totalLength );
-		let offset = 0;
-
-		for ( const audio of chunkAudio ) {
-			merged.set( audio, offset );
-			offset += audio.length;
-		}
-
-		return encodeWav( merged, SAMPLE_RATE );
-	}
-
-	async #generateChunk( text, voice, speed, onProgress ) {
-		const voiceId = resolveVoiceId( voice, this.config );
-		const speedPriors = this.config.speed_priors || DEFAULT_CONFIG.speed_priors;
-		const effectiveSpeed = speed * ( speedPriors[ voiceId ] || 1 );
-
-		onProgress?.( 'Phonemizing text…' );
-
-		const phonemeString = await phonemizeWithEspeak( text );
-		const tokens = phonemeStringToTokens( phonemeString );
-		const inputIds = new this.ort.Tensor(
-			'int64',
-			BigInt64Array.from( tokens.map( ( token ) => BigInt( token ) ) ),
-			[ 1, tokens.length ]
-		);
-		const style = getStyleTensor( this.ort, this.voices, voiceId, text );
-		const speedTensor = new this.ort.Tensor(
-			'float32',
-			new Float32Array( [ effectiveSpeed ] ),
-			[ 1 ]
-		);
+		const tts = await this.getTTS( this.settings.modelRepo, onProgress );
+		const voiceId = normalizeVoiceId( voice );
+		const speedNum = Number( speed ) || 1.0;
 
 		onProgress?.( 'Synthesizing speech…' );
 
-		const feeds = {};
-		for ( const name of this.session.inputNames ) {
-			if ( name.includes( 'input' ) ) {
-				feeds[ name ] = inputIds;
-			} else if ( name === 'style' ) {
-				feeds[ name ] = style;
-			} else if ( name === 'speed' ) {
-				feeds[ name ] = speedTensor;
-			}
+		const result = await tts.generate( text, {
+			voice: voiceId,
+			speed: speedNum,
+		} );
+
+		const wavBytes = result.wavData();
+		return new Blob( [ wavBytes ], { type: 'audio/wav' } );
+	}
+
+	/**
+	 * Dispose active KittenTTS engine instance.
+	 *
+	 * @return {Promise<void>}
+	 */
+	async dispose() {
+		if ( this.tts ) {
+			await this.tts.dispose().catch( () => {} );
+			this.tts = null;
+			this.activeModel = null;
 		}
-
-		if ( ! Object.keys( feeds ).length ) {
-			feeds.input_ids = inputIds;
-			feeds.style = style;
-			feeds.speed = speedTensor;
-		}
-
-		const outputs = await this.session.run( feeds );
-
-		const outputKey = Object.keys( outputs )[ 0 ];
-		const audio = outputs[ outputKey ].data;
-		const trimLength = Math.max( 0, audio.length - 5000 );
-
-		return audio.slice( 0, trimLength );
 	}
 }
 
-export async function generateSpeechBlob( text, voice, speed, settings = {}, onProgress ) {
+/**
+ * Generate speech WAV audio blob using KittenTTS Web SDK.
+ *
+ * @param {string}   text         Input text.
+ * @param {string}   [voice]      Voice name.
+ * @param {number}   [speed]      Speed multiplier.
+ * @param {object}   [settings]   Plugin runtime settings.
+ * @param {Function} [onProgress] Progress status callback.
+ * @return {Promise<Blob>} Audio blob.
+ */
+export async function generateSpeechBlob(
+	text,
+	voice,
+	speed,
+	settings = {},
+	onProgress
+) {
 	await ensureRuntimeWasm();
+
 	const runtimeSettings = {
 		...settings,
 		...( window.sahajanandPostToSpeechSettings || {} ),
 	};
+
 	const engine = KittenTTSEngine.getInstance( runtimeSettings );
 	onProgress?.( 'Preparing speech model…' );
+
 	return engine.generate( text, voice, speed, onProgress );
 }

@@ -2,7 +2,7 @@ const PAD = '$';
 const PUNCTUATION = ';:,.!?¡¿—…"«»"" ';
 const LETTERS = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz';
 const LETTERS_IPA =
-	'ɑɐɒæɓʙβɔɕçɗɖðʤəɘɚɛɜɝɞɟʄɡɠɢʛɦɧħɥʜɨɪʝɭɬɫɮʟɱɯɰŋɳɲɴøɵɸθœɶʘɹɺɾɻʀʁɽʂʃʈʧʉʊʋⱱʌɣɤʍχʎʏʑʐʒʔʡʕʢǀǁǂǃˈˌːˑʼʴʰʱʲʷˠˤ˞↓↑→↗↘\'̩\'ᵻ';
+	"ɑɐɒæɓʙβɔɕçɗɖðʤəɘɚɛɜɝɞɟʄɡɠɢʛɦɧħɥʜɨɪʝɭɬɫɮʟɱɯɰŋɳɲɴøɵɸθœɶʘɹɺɾɻʀʁɽʂʃʈʧʉʊʋⱱʌɣɤʍχʎʏʑʐʒʔʡʕʢǀǁǂǃˈˌːˑʼʴʰʱʲʷˠˤ˞↓↑→↗↘'̩'ᵻ";
 
 const SYMBOLS = [ PAD, ...PUNCTUATION, ...LETTERS, ...LETTERS_IPA ];
 const SYMBOL_INDEX = Object.fromEntries(
@@ -68,7 +68,9 @@ export function chunkText( text, maxLength = 250 ) {
 	let current = '';
 
 	for ( const sentence of sentences ) {
-		const candidate = current ? `${ current } ${ sentence.trim() }` : sentence.trim();
+		const candidate = current
+			? `${ current } ${ sentence.trim() }`
+			: sentence.trim();
 
 		if ( candidate.length > maxLength && current ) {
 			chunks.push( current.trim() );

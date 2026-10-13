@@ -7,7 +7,14 @@
 	"category": "media",
 	"icon": "controls-volumeon",
 	"description": "Convert post content or custom text to speech with Sahajanand Post to Speech and embed an audio player.",
-	"keywords": [ "audio", "text-to-speech", "gutenberg", "speech", "blog", "sahajanand" ],
+	"keywords": [
+		"audio",
+		"text-to-speech",
+		"gutenberg",
+		"speech",
+		"blog",
+		"sahajanand"
+	],
 	"textdomain": "sahajanand-post-to-speech",
 	"attributes": {
 		"textSource": {

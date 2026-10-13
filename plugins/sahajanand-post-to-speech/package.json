@@ -11,10 +11,17 @@
 		"postinstall": "npm run copy:vendor",
 		"start": "wp-scripts start",
 		"test": "wp-scripts test-unit-js",
+		"test:e2e": "wp-scripts test-playwright",
+		"test:e2e:debug": "wp-scripts test-playwright --debug",
+		"test:e2e:headed": "wp-scripts test-playwright --headed",
+		"wp-env": "wp-env",
 		"lint:js": "wp-scripts lint-js",
 		"format": "wp-scripts format"
 	},
 	"devDependencies": {
+		"@playwright/test": "^1.49.0",
+		"@wordpress/e2e-test-utils-playwright": "^1.51.0",
+		"@wordpress/env": "^10.39.0",
 		"@wordpress/scripts": "^30.0.0",
 		"espeak-ng": "^1.0.2",
 		"fflate": "^0.8.2",

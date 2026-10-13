@@ -17,6 +17,7 @@ class Sahajanand_Post_To_Speech_Runtime_Assets {
 	const ESPEAK_WASM_FILE = 'espeak-ng.wasm';
 	const ONNX_WASM_FILE   = 'ort-wasm-simd-threaded.wasm';
 	const ONNX_MJS_FILE    = 'ort-wasm-simd-threaded.mjs';
+	const KITTENTTS_FILE   = 'kittentts-web.js';
 
 	/**
 	 * Runtime files required for browser WASM inference.
@@ -61,11 +62,41 @@ class Sahajanand_Post_To_Speech_Runtime_Assets {
 	}
 
 	/**
-	 * Whether bundled runtime WASM is present in the plugin vendor directory.
+	 * Whether KittenTTS Web SDK bundle is present in the plugin vendor directory.
+	 *
+	 * @return bool
+	 */
+	public static function is_kittentts_installed() {
+		if ( ! defined( 'SAHAJANAND_POST_TO_SPEECH_PATH' ) ) {
+			return false;
+		}
+
+		return file_exists( SAHAJANAND_POST_TO_SPEECH_PATH . 'assets/vendor/kittentts/' . self::KITTENTTS_FILE );
+	}
+
+	/**
+	 * URL for the KittenTTS Web SDK script.
+	 *
+	 * @return string
+	 */
+	public static function get_kittentts_url() {
+		if ( ! defined( 'SAHAJANAND_POST_TO_SPEECH_URL' ) ) {
+			return '/wp-content/plugins/sahajanand-post-to-speech/assets/vendor/kittentts/' . self::KITTENTTS_FILE;
+		}
+
+		return SAHAJANAND_POST_TO_SPEECH_URL . 'assets/vendor/kittentts/' . self::KITTENTTS_FILE;
+	}
+
+	/**
+	 * Whether bundled runtime WASM or KittenTTS SDK is present in the plugin vendor directory.
 	 *
 	 * @return bool
 	 */
 	public static function is_installed() {
+		if ( self::is_kittentts_installed() ) {
+			return true;
+		}
+
 		return '' !== self::get_wasm_base_url();
 	}
 

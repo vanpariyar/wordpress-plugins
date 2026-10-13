@@ -42,7 +42,7 @@ https://github.com/vanpariyar/wordpress-plugins
 
 == Credits ==
 
-This plugin uses the open-source [KittenTTS](https://github.com/KittenML/KittenTTS) speech synthesis models from [KittenML](https://github.com/KittenML) and bundles [eSpeak-NG](https://github.com/espeak-ng/espeak-ng) (GPL-3.0-or-later) for browser phonemization.
+This plugin uses the open-source [KittenTTS](https://github.com/KittenML/KittenTTS) speech synthesis models and [KittenTTS-web](https://github.com/KittenML/KittenTTS-web) SDK from [KittenML](https://github.com/KittenML).
 
 Sahajanand Post to Speech is developed independently and is **not affiliated with, endorsed by, or sponsored by KittenML**.
 
@@ -52,7 +52,7 @@ This plugin may contact the following third-party services when generating audio
 
 **Browser mode (editor only)**
 
-* [Hugging Face](https://huggingface.co/) — downloads speech model files configured in settings (default models published by KittenML). ONNX Runtime and eSpeak-NG WASM files ship inside the plugin package.
+* [KittenTTS-web](https://github.com/KittenML/KittenTTS-web) / [Hugging Face](https://huggingface.co/) — downloads selected speech model files on first generation and caches them locally in the browser Cache API. KittenTTS Web SDK ships bundled inside the plugin.
 
 **API mode (server-side, when configured)**
 

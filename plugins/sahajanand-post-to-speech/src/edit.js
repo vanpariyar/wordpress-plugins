@@ -166,7 +166,12 @@ export default function Edit( { attributes, setAttributes } ) {
 			let response;
 
 			if ( isApiMode ) {
-				setProgress( __( 'Generating audio via API…', 'sahajanand-post-to-speech' ) );
+				setProgress(
+					__(
+						'Generating audio via API…',
+						'sahajanand-post-to-speech'
+					)
+				);
 
 				response = await apiFetch( {
 					path: '/sahajanand-post-to-speech/v1/generate',
@@ -179,7 +184,9 @@ export default function Edit( { attributes, setAttributes } ) {
 					},
 				} );
 			} else {
-				setProgress( __( 'Starting browser TTS…', 'sahajanand-post-to-speech' ) );
+				setProgress(
+					__( 'Starting browser TTS…', 'sahajanand-post-to-speech' )
+				);
 
 				const { generateSpeechBlob } = await import( './tts/engine' );
 				const wavBlob = await generateSpeechBlob(
@@ -190,7 +197,9 @@ export default function Edit( { attributes, setAttributes } ) {
 					setProgress
 				);
 
-				setProgress( __( 'Uploading audio…', 'sahajanand-post-to-speech' ) );
+				setProgress(
+					__( 'Uploading audio…', 'sahajanand-post-to-speech' )
+				);
 				response = await uploadWavBlob( wavBlob, postId );
 			}
 
@@ -230,17 +239,28 @@ export default function Edit( { attributes, setAttributes } ) {
 	return (
 		<>
 			<InspectorControls>
-				<PanelBody title={ __( 'Audio source', 'sahajanand-post-to-speech' ) }>
+				<PanelBody
+					title={ __( 'Audio source', 'sahajanand-post-to-speech' ) }
+				>
 					<SelectControl
-						label={ __( 'Text source', 'sahajanand-post-to-speech' ) }
+						label={ __(
+							'Text source',
+							'sahajanand-post-to-speech'
+						) }
 						value={ textSource }
 						options={ [
 							{
-								label: __( 'Post content', 'sahajanand-post-to-speech' ),
+								label: __(
+									'Post content',
+									'sahajanand-post-to-speech'
+								),
 								value: 'post',
 							},
 							{
-								label: __( 'Custom text', 'sahajanand-post-to-speech' ),
+								label: __(
+									'Custom text',
+									'sahajanand-post-to-speech'
+								),
 								value: 'custom',
 							},
 						] }
@@ -260,7 +280,12 @@ export default function Edit( { attributes, setAttributes } ) {
 						}
 					/>
 				</PanelBody>
-				<PanelBody title={ __( 'Voice settings', 'sahajanand-post-to-speech' ) }>
+				<PanelBody
+					title={ __(
+						'Voice settings',
+						'sahajanand-post-to-speech'
+					) }
+				>
 					<SelectControl
 						label={ __( 'Voice', 'sahajanand-post-to-speech' ) }
 						value={ voice }
@@ -268,25 +293,38 @@ export default function Edit( { attributes, setAttributes } ) {
 							label: item,
 							value: item,
 						} ) ) }
-						onChange={ ( value ) => setAttributes( { voice: value } ) }
+						onChange={ ( value ) =>
+							setAttributes( { voice: value } )
+						}
 					/>
 					<RangeControl
 						label={ __( 'Speed', 'sahajanand-post-to-speech' ) }
 						value={ speed }
-						onChange={ ( value ) => setAttributes( { speed: value } ) }
+						onChange={ ( value ) =>
+							setAttributes( { speed: value } )
+						}
 						min={ 0.5 }
 						max={ 2 }
 						step={ 0.1 }
 					/>
 				</PanelBody>
 				<PanelBody
-					title={ __( 'Generation mode', 'sahajanand-post-to-speech' ) }
+					title={ __(
+						'Generation mode',
+						'sahajanand-post-to-speech'
+					) }
 					initialOpen={ false }
 				>
 					<p>
 						{ isApiMode
-							? __( 'API mode (server-side)', 'sahajanand-post-to-speech' )
-							: __( 'Browser mode (WASM)', 'sahajanand-post-to-speech' ) }
+							? __(
+									'API mode (server-side)',
+									'sahajanand-post-to-speech'
+							  )
+							: __(
+									'Browser mode (WASM)',
+									'sahajanand-post-to-speech'
+							  ) }
 					</p>
 					{ isApiMode && settings.pricePerRequest > 0 && (
 						<p>
@@ -311,7 +349,10 @@ export default function Edit( { attributes, setAttributes } ) {
 			<div { ...blockProps }>
 				{ isPostSource ? (
 					<TextareaControl
-						label={ __( 'Post text preview', 'sahajanand-post-to-speech' ) }
+						label={ __(
+							'Post text preview',
+							'sahajanand-post-to-speech'
+						) }
 						value={ postPlainText }
 						readOnly
 						rows={ 6 }
@@ -322,9 +363,14 @@ export default function Edit( { attributes, setAttributes } ) {
 					/>
 				) : (
 					<TextareaControl
-						label={ __( 'Custom text', 'sahajanand-post-to-speech' ) }
+						label={ __(
+							'Custom text',
+							'sahajanand-post-to-speech'
+						) }
 						value={ text }
-						onChange={ ( value ) => setAttributes( { text: value } ) }
+						onChange={ ( value ) =>
+							setAttributes( { text: value } )
+						}
 						rows={ 6 }
 						help={ helpText }
 					/>
@@ -338,13 +384,18 @@ export default function Edit( { attributes, setAttributes } ) {
 					>
 						{ isGenerating
 							? __( 'Generating…', 'sahajanand-post-to-speech' )
-							: __( 'Generate audio', 'sahajanand-post-to-speech' ) }
+							: __(
+									'Generate audio',
+									'sahajanand-post-to-speech'
+							  ) }
 					</Button>
 					{ isGenerating && <Spinner /> }
 				</div>
 
 				{ progress && (
-					<p className="sahajanand-speech-block__progress">{ progress }</p>
+					<p className="sahajanand-speech-block__progress">
+						{ progress }
+					</p>
 				) }
 
 				{ error && (

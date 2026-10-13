@@ -56,13 +56,45 @@ function configureOrtEnv( ort, wasmBase ) {
  * @return {Promise<void>}
  */
 export async function ensureRuntimeWasm() {
-	if ( getSettings()?.runtimeWasmInstalled ) {
+	if ( getSettings()?.runtimeWasmInstalled || window.KittenTTSWeb ) {
 		return;
 	}
 
 	throw new Error(
 		'Browser runtime files are missing from the plugin. Reinstall Sahajanand Post to Speech or run npm run copy:vendor in the plugin directory.'
 	);
+}
+
+let kittenTtsPromise = null;
+
+/**
+ * Load KittenTTS Web SDK.
+ *
+ * @return {Promise<typeof window.KittenTTSWeb>} KittenTTSWeb namespace.
+ */
+export async function loadKittenTTSWeb() {
+	if ( window.KittenTTSWeb ) {
+		return window.KittenTTSWeb;
+	}
+
+	if ( ! kittenTtsPromise ) {
+		kittenTtsPromise = ( async () => {
+			const settings = getSettings();
+			const scriptUrl =
+				settings?.kittenTtsScriptUrl ||
+				'/wp-content/plugins/sahajanand-post-to-speech/assets/vendor/kittentts/kittentts-web.js';
+
+			await loadScript( scriptUrl );
+
+			if ( ! window.KittenTTSWeb ) {
+				throw new Error( 'Failed to initialize KittenTTS Web SDK.' );
+			}
+
+			return window.KittenTTSWeb;
+		} )();
+	}
+
+	return kittenTtsPromise;
 }
 
 /**
@@ -150,7 +182,9 @@ async function loadESpeakNgFactory() {
 			const factory = module.default || module.ESpeakNG;
 
 			if ( typeof factory !== 'function' ) {
-				throw new Error( 'eSpeak-NG module did not export a factory function.' );
+				throw new Error(
+					'eSpeak-NG module did not export a factory function.'
+				);
 			}
 
 			window.ESpeakNG = factory;
@@ -178,7 +212,9 @@ function loadScript( src ) {
 				return;
 			}
 
-			existing.addEventListener( 'load', () => resolve(), { once: true } );
+			existing.addEventListener( 'load', () => resolve(), {
+				once: true,
+			} );
 			existing.addEventListener(
 				'error',
 				() => reject( new Error( `Failed to load ${ src }` ) ),
