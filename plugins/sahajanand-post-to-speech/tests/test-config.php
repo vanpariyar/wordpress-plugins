@@ -133,16 +133,13 @@ class Sahajanand_Post_To_Speech_Config_Test extends Sahajanand_Post_To_Speech_Te
 	 * Vendor URLs should point at bundled plugin assets, not remote CDNs.
 	 */
 	public function test_vendor_urls_use_local_plugin_assets() {
-		$espeak_url    = Sahajanand_Post_To_Speech_Config::get_espeak_module_url();
-		$onnx_url      = Sahajanand_Post_To_Speech_Config::get_onnx_script_url();
 		$kittentts_url = Sahajanand_Post_To_Speech_Config::get_kittentts_script_url();
+		$wasm_base_url = Sahajanand_Post_To_Speech_Runtime_Assets::get_wasm_base_url();
 
-		$this->assertStringContainsString( 'assets/vendor/espeak-ng/espeak-ng.js', $espeak_url );
-		$this->assertStringContainsString( 'assets/vendor/onnxruntime-web/ort.min.js', $onnx_url );
 		$this->assertStringContainsString( 'assets/vendor/kittentts/kittentts-web.js', $kittentts_url );
-		$this->assertStringNotContainsString( 'cdn.jsdelivr.net', $espeak_url );
-		$this->assertStringNotContainsString( 'cdn.jsdelivr.net', $onnx_url );
+		$this->assertStringContainsString( 'assets/vendor/onnxruntime-web', $wasm_base_url );
 		$this->assertStringNotContainsString( 'cdn.jsdelivr.net', $kittentts_url );
+		$this->assertStringNotContainsString( 'cdn.jsdelivr.net', $wasm_base_url );
 	}
 
 	/**

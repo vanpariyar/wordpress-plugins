@@ -111,27 +111,21 @@ class Sahajanand_Post_To_Speech_Config {
 	/**
 	 * URL to the bundled eSpeak-NG ES module (editor only).
 	 *
+	 * @deprecated 1.1.0 eSpeak-NG is superseded by KittenTTS Web SDK.
 	 * @return string
 	 */
 	public static function get_espeak_module_url() {
-		if ( defined( 'SAHAJANAND_POST_TO_SPEECH_URL' ) ) {
-			return SAHAJANAND_POST_TO_SPEECH_URL . 'assets/vendor/espeak-ng/espeak-ng.js';
-		}
-
-		return '/wp-content/plugins/sahajanand-post-to-speech/assets/vendor/espeak-ng/espeak-ng.js';
+		return '';
 	}
 
 	/**
 	 * URL to the bundled ONNX Runtime Web script (editor only).
 	 *
+	 * @deprecated 1.1.0 Superseded by KittenTTS Web SDK.
 	 * @return string
 	 */
 	public static function get_onnx_script_url() {
-		if ( defined( 'SAHAJANAND_POST_TO_SPEECH_URL' ) ) {
-			return SAHAJANAND_POST_TO_SPEECH_URL . 'assets/vendor/onnxruntime-web/ort.min.js';
-		}
-
-		return '/wp-content/plugins/sahajanand-post-to-speech/assets/vendor/onnxruntime-web/ort.min.js';
+		return '';
 	}
 
 	/**

@@ -24,7 +24,7 @@
 		},
 		{
 			"step": "runPHP",
-			"code": "<?php require_once 'wordpress/wp-load.php'; $content = '<!-- wp:paragraph --><p>Welcome to the <strong>Sahajanand Post to Speech</strong> demo. Add or edit the block below, choose a voice in the sidebar, and click <strong>Generate audio</strong>. Browser mode downloads speech models on first use (networking is enabled in this preview).</p><!-- /wp:paragraph --><!-- wp:sahajanand-post-to-speech/post-audio {\"textSource\":\"custom\",\"text\":\"Hello from Sahajanand Post to Speech! This WordPress Playground demo converts text to speech in your browser using ONNX Runtime Web and bundled eSpeak-NG.\"} /-->'; wp_update_post( array( 'ID' => 1, 'post_title' => 'Sahajanand Post to Speech Demo', 'post_content' => $content, 'post_status' => 'draft' ) ); ?>"
+			"code": "<?php require_once 'wordpress/wp-load.php'; $content = '<!-- wp:paragraph --><p>Welcome to the <strong>Sahajanand Post to Speech</strong> demo. Add or edit the block below, choose a voice in the sidebar, and click <strong>Generate audio</strong>. Browser mode downloads speech models on first use (networking is enabled in this preview).</p><!-- /wp:paragraph --><!-- wp:sahajanand-post-to-speech/post-audio {\"textSource\":\"custom\",\"text\":\"Hello from Sahajanand Post to Speech! This WordPress Playground demo converts text to speech in your browser using KittenTTS Web SDK.\"} /-->'; wp_update_post( array( 'ID' => 1, 'post_title' => 'Sahajanand Post to Speech Demo', 'post_content' => $content, 'post_status' => 'draft' ) ); ?>"
 		}
 	]
 }

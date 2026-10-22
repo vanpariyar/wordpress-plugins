@@ -110,33 +110,51 @@ export class KittenTTSEngine {
 
 			const wasmBase = this.settings.onnxWasmUrl || undefined;
 
-			this.tts = await KittenTTS.create(
-				{
-					model: targetModel,
-					analytics: false,
-					...( wasmBase ? { ortWasmPath: wasmBase } : {} ),
-				},
-				( progress, info ) => {
-					if ( ! onProgress ) {
-						return;
-					}
-
-					const pct = Math.round( ( progress || 0 ) * 100 );
-
-					if ( info?.stage === 'downloading' ) {
-						const asset = info.asset ? ` (${ info.asset })` : '';
-						onProgress( `Downloading model${ asset }… ${ pct }%` );
-					} else if ( info?.stage === 'checking-cache' ) {
-						onProgress( 'Checking cached model…' );
-					} else if ( info?.stage === 'cached' ) {
-						onProgress( 'Using cached model…' );
-					} else if ( info?.stage === 'complete' ) {
-						onProgress( 'Model ready…' );
-					} else {
-						onProgress( `Preparing speech model… ${ pct }%` );
-					}
+			const progressCallback = ( progress, info ) => {
+				if ( ! onProgress ) {
+					return;
 				}
-			);
+
+				const pct = Math.round( ( progress || 0 ) * 100 );
+
+				if ( info?.stage === 'downloading' ) {
+					const asset = info.asset ? ` (${ info.asset })` : '';
+					onProgress( `Downloading model${ asset }… ${ pct }%` );
+				} else if ( info?.stage === 'checking-cache' ) {
+					onProgress( 'Checking cached model…' );
+				} else if ( info?.stage === 'cached' ) {
+					onProgress( 'Using cached model…' );
+				} else if ( info?.stage === 'complete' ) {
+					onProgress( 'Model ready…' );
+				} else {
+					onProgress( `Preparing speech model… ${ pct }%` );
+				}
+			};
+
+			try {
+				this.tts = await KittenTTS.create(
+					{
+						model: targetModel,
+						analytics: false,
+						...( wasmBase ? { ortWasmPath: wasmBase } : {} ),
+					},
+					progressCallback
+				);
+			} catch ( createErr ) {
+				// If local WASM failed (e.g. server MIME type, CORS or version mismatch),
+				// fallback to the SDK's built-in CDN assets.
+				if ( wasmBase ) {
+					this.tts = await KittenTTS.create(
+						{
+							model: targetModel,
+							analytics: false,
+						},
+						progressCallback
+					);
+				} else {
+					throw createErr;
+				}
+			}
 
 			this.activeModel = targetModel;
 			return this.tts;
@@ -194,7 +212,7 @@ export class KittenTTSEngine {
  * @param {string}   text         Input text.
  * @param {string}   [voice]      Voice name.
  * @param {number}   [speed]      Speed multiplier.
- * @param {object}   [settings]   Plugin runtime settings.
+ * @param {Object}   [settings]   Plugin runtime settings.
  * @param {Function} [onProgress] Progress status callback.
  * @return {Promise<Blob>} Audio blob.
  */

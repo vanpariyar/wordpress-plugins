@@ -1,19 +1,9 @@
 {
 	"cookies": [
 		{
-			"name": "wordpress_test_cookie",
-			"value": "WP%20Cookie%20check",
-			"domain": "localhost",
-			"path": "/",
-			"expires": -1,
-			"httpOnly": true,
-			"secure": false,
-			"sameSite": "Lax"
-		},
-		{
-			"name": "wordpress_23778236db82f19306f247e20a353a99",
-			"value": "admin%7C1785073256%7CuPzOZlA7ygBMGargmP0bu2YeTXuNVMoNIv3AXgpFL4a%7C85df53a9b3a5acc7439568a31c026ae4bb1b27fc0524b0b1b1cd039ab5f41763",
-			"domain": "localhost",
+			"name": "wordpress_8a14b24b9d9d91234511c11b1f74b937",
+			"value": "admin%7C1792220161%7CgozbI0WdgsfxulrehbZHLDE4HwW7lgGd0C8T8v6QRsb%7C12271e60f60d70fbcce9b029804c447e69f9f92624f25e05c6da1af0addc044f",
+			"domain": "127.0.0.1",
 			"path": "/wp-content/plugins",
 			"expires": -1,
 			"httpOnly": true,
@@ -21,9 +11,9 @@
 			"sameSite": "Lax"
 		},
 		{
-			"name": "wordpress_23778236db82f19306f247e20a353a99",
-			"value": "admin%7C1785073256%7CuPzOZlA7ygBMGargmP0bu2YeTXuNVMoNIv3AXgpFL4a%7C85df53a9b3a5acc7439568a31c026ae4bb1b27fc0524b0b1b1cd039ab5f41763",
-			"domain": "localhost",
+			"name": "wordpress_8a14b24b9d9d91234511c11b1f74b937",
+			"value": "admin%7C1792220161%7CgozbI0WdgsfxulrehbZHLDE4HwW7lgGd0C8T8v6QRsb%7C12271e60f60d70fbcce9b029804c447e69f9f92624f25e05c6da1af0addc044f",
+			"domain": "127.0.0.1",
 			"path": "/wp-admin",
 			"expires": -1,
 			"httpOnly": true,
@@ -31,9 +21,9 @@
 			"sameSite": "Lax"
 		},
 		{
-			"name": "wordpress_logged_in_23778236db82f19306f247e20a353a99",
-			"value": "admin%7C1785073256%7CuPzOZlA7ygBMGargmP0bu2YeTXuNVMoNIv3AXgpFL4a%7Cf6f5364bb62d7d742795f430fd5c3942d09d9bc9a14c1995f45467ed8f5f5534",
-			"domain": "localhost",
+			"name": "wordpress_logged_in_8a14b24b9d9d91234511c11b1f74b937",
+			"value": "admin%7C1792220161%7CgozbI0WdgsfxulrehbZHLDE4HwW7lgGd0C8T8v6QRsb%7C384fe8f1f315cfed83d6fe83fc8a31e8572eafa48f3cb63bc94f705b836b16ac",
+			"domain": "127.0.0.1",
 			"path": "/",
 			"expires": -1,
 			"httpOnly": true,
@@ -41,16 +31,26 @@
 			"sameSite": "Lax"
 		},
 		{
-			"name": "wp-settings-time-1",
-			"value": "1784900456",
-			"domain": "localhost",
+			"name": "playground_auto_login_already_happened",
+			"value": "1",
+			"domain": "127.0.0.1",
 			"path": "/",
-			"expires": 1816436456.8,
+			"expires": -1,
 			"httpOnly": false,
+			"secure": false,
+			"sameSite": "Lax"
+		},
+		{
+			"name": "wordpress_test_cookie",
+			"value": "WP%20Cookie%20check",
+			"domain": "127.0.0.1",
+			"path": "/",
+			"expires": -1,
+			"httpOnly": true,
 			"secure": false,
 			"sameSite": "Lax"
 		}
 	],
-	"nonce": "e5d4875171",
-	"rootURL": "http://localhost:8889/index.php?rest_route=/"
+	"nonce": "2ba2bb4e69",
+	"rootURL": "http://127.0.0.1:8889/wp-json/"
 }

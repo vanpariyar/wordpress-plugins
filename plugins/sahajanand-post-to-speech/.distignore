@@ -13,6 +13,17 @@ node_modules
 package-lock.json
 package.json
 
+# Test and CI artifacts
+artifacts
+artifacts/**
+playwright.config.js
+.wp-env.json
+*.test.js
+src/tts/engine.test.js
+
+# Build helper scripts
+copy-vendor-assets.js
+
 # Dev scripts and logs (not shipped to WordPress.org)
 scripts
 scripts/**

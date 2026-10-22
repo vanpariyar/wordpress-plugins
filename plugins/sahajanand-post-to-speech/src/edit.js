@@ -44,7 +44,7 @@ function getPostPlainText( serializedContent ) {
 		/<!--[\s\S]*?-->/g,
 		' '
 	);
-	const doc = new DOMParser().parseFromString(
+	const doc = new window.DOMParser().parseFromString(
 		withoutBlockComments,
 		'text/html'
 	);
@@ -54,7 +54,7 @@ function getPostPlainText( serializedContent ) {
 
 async function blobToBase64( blob ) {
 	return new Promise( ( resolve, reject ) => {
-		const reader = new FileReader();
+		const reader = new window.FileReader();
 		reader.onload = () => {
 			const result = reader.result;
 			if ( typeof result !== 'string' ) {
@@ -131,6 +131,7 @@ export default function Edit( { attributes, setAttributes } ) {
 			.catch( () => {
 				// Fall back to localized settings when available.
 			} );
+		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, [] );
 
 	const generateAudio = async () => {

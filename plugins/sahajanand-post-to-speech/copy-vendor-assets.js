@@ -1,3 +1,4 @@
+/* eslint-disable no-console */
 const fs = require( 'fs' );
 const path = require( 'path' );
 
@@ -27,24 +28,7 @@ if ( fs.existsSync( kittenFile ) ) {
 	console.warn( `KittenTTS Web SDK missing at ${ kittenFile }` );
 }
 
-// 2. copy espeak-ng assets (if installed)
-const espeakSrcDir = path.join(
-	pluginRoot,
-	'node_modules',
-	'espeak-ng',
-	'dist'
-);
-const espeakDestDir = path.join( pluginRoot, 'assets', 'vendor', 'espeak-ng' );
-copyFile(
-	path.join( espeakSrcDir, 'espeak-ng.js' ),
-	path.join( espeakDestDir, 'espeak-ng.js' )
-);
-copyFile(
-	path.join( espeakSrcDir, 'espeak-ng.wasm' ),
-	path.join( espeakDestDir, 'espeak-ng.wasm' )
-);
-
-// 3. copy onnxruntime-web assets (if installed)
+// 2. copy onnxruntime-web assets (if installed)
 const onnxSrcDir = path.join(
 	pluginRoot,
 	'node_modules',
@@ -59,7 +43,6 @@ const onnxDestDir = path.join(
 );
 
 const onnxFiles = [
-	'ort.min.js',
 	'ort-wasm-simd-threaded.mjs',
 	'ort-wasm-simd-threaded.wasm',
 ];

@@ -27,6 +27,7 @@ test.describe( 'Sahajanand Post to Speech block', () => {
 		).toBeVisible();
 		await expect( block.getByLabel( 'Post text preview' ) ).toBeVisible();
 
+		await block.click();
 		await editor.openDocumentSettingsSidebar();
 		await expect(
 			page.getByRole( 'button', { name: 'Audio source' } )
@@ -79,7 +80,9 @@ test.describe( 'Sahajanand Post to Speech block', () => {
 		).toBeVisible();
 	} );
 
-	test( 'previews post content as the speech source', async ( { editor } ) => {
+	test( 'previews post content as the speech source', async ( {
+		editor,
+	} ) => {
 		await editor.insertBlock( {
 			name: 'core/paragraph',
 			attributes: {

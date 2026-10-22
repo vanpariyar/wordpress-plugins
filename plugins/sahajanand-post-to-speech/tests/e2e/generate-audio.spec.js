@@ -34,7 +34,9 @@ async function insertBlockAndGenerate( { admin, editor } ) {
 	} );
 
 	const block = editor.canvas.locator( '.sahajanand-speech-block' );
-	await expect( block.getByLabel( 'Custom text' ) ).toHaveValue( SPEECH_TEXT );
+	await expect( block.getByLabel( 'Custom text' ) ).toHaveValue(
+		SPEECH_TEXT
+	);
 
 	await block.getByRole( 'button', { name: 'Generate audio' } ).click();
 
@@ -65,7 +67,9 @@ test.describe( 'Audio generation', () => {
 		const { player } = await insertBlockAndGenerate( { admin, editor } );
 
 		const blocks = await editor.getBlocks();
-		const speechBlock = blocks.find( ( block ) => block.name === BLOCK_NAME );
+		const speechBlock = blocks.find(
+			( block ) => block.name === BLOCK_NAME
+		);
 
 		expect( speechBlock ).toBeTruthy();
 		expect( speechBlock.attributes.audioUrl ).toMatch(

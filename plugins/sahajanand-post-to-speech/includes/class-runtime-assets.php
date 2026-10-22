@@ -25,11 +25,7 @@ class Sahajanand_Post_To_Speech_Runtime_Assets {
 	 * @return string[]
 	 */
 	public static function get_required_files() {
-		return array(
-			self::ESPEAK_WASM_FILE,
-			self::ONNX_WASM_FILE,
-			self::ONNX_MJS_FILE,
-		);
+		return self::get_onnx_files();
 	}
 
 	/**
@@ -67,11 +63,11 @@ class Sahajanand_Post_To_Speech_Runtime_Assets {
 	 * @return bool
 	 */
 	public static function is_kittentts_installed() {
-		if ( ! defined( 'SAHAJANAND_POST_TO_SPEECH_PATH' ) ) {
-			return false;
-		}
+		$plugin_path = defined( 'SAHAJANAND_POST_TO_SPEECH_PATH' )
+			? SAHAJANAND_POST_TO_SPEECH_PATH
+			: dirname( __DIR__ ) . '/';
 
-		return file_exists( SAHAJANAND_POST_TO_SPEECH_PATH . 'assets/vendor/kittentts/' . self::KITTENTTS_FILE );
+		return file_exists( $plugin_path . 'assets/vendor/kittentts/' . self::KITTENTTS_FILE );
 	}
 
 	/**
@@ -106,15 +102,17 @@ class Sahajanand_Post_To_Speech_Runtime_Assets {
 	 * @return string Empty when WASM is not bundled.
 	 */
 	public static function get_wasm_base_url() {
-		if ( ! defined( 'SAHAJANAND_POST_TO_SPEECH_PATH' ) || ! defined( 'SAHAJANAND_POST_TO_SPEECH_URL' ) ) {
-			return '';
-		}
+		$plugin_path = defined( 'SAHAJANAND_POST_TO_SPEECH_PATH' )
+			? SAHAJANAND_POST_TO_SPEECH_PATH
+			: dirname( __DIR__ ) . '/';
+		$plugin_url  = defined( 'SAHAJANAND_POST_TO_SPEECH_URL' )
+			? SAHAJANAND_POST_TO_SPEECH_URL
+			: '/wp-content/plugins/sahajanand-post-to-speech/';
 
-		$onnx_vendor = SAHAJANAND_POST_TO_SPEECH_PATH . 'assets/vendor/onnxruntime-web';
-		$espeak_wasm = SAHAJANAND_POST_TO_SPEECH_PATH . 'assets/vendor/espeak-ng/' . self::ESPEAK_WASM_FILE;
+		$onnx_vendor = $plugin_path . 'assets/vendor/onnxruntime-web';
 
-		if ( self::directory_has_files( $onnx_vendor, self::get_onnx_files() ) && file_exists( $espeak_wasm ) ) {
-			return SAHAJANAND_POST_TO_SPEECH_URL . 'assets/vendor/onnxruntime-web';
+		if ( self::directory_has_files( $onnx_vendor, self::get_onnx_files() ) ) {
+			return rtrim( (string) $plugin_url, '/' ) . '/assets/vendor/onnxruntime-web';
 		}
 
 		return '';
@@ -123,13 +121,10 @@ class Sahajanand_Post_To_Speech_Runtime_Assets {
 	/**
 	 * URL for the eSpeak-NG WASM file.
 	 *
+	 * @deprecated 1.1.0 eSpeak-NG is superseded by KittenTTS Web SDK.
 	 * @return string
 	 */
 	public static function get_espeak_wasm_url() {
-		if ( ! self::is_installed() ) {
-			return '';
-		}
-
-		return SAHAJANAND_POST_TO_SPEECH_URL . 'assets/vendor/espeak-ng/' . self::ESPEAK_WASM_FILE;
+		return '';
 	}
 }
